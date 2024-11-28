@@ -15,4 +15,17 @@ Predictive models are built using the Random Forest algorithm ([Breiman 2001](ht
 * product plots to visualize the model results;
   
 ![Fig.1](https://github.com/biocsuwb/Images/blob/main/EnsembleLearning.jpg?raw=true) 
+
 Fig.1 Ensemble learning.
+
+## Install ensemble-binclass package
+### Install the development version from GitHub:
+To install this package, clone the repository and install with pip:
+```r
+install.packages("ensemble-binclass")
+devtools::install_github("biocsuwb/ensemble-binclass")
+```
+### Install the development version from PyPi repository:
+```r
+pip install ensemble-binclass
+```
