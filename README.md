@@ -29,3 +29,33 @@ devtools::install_github("biocsuwb/ensemble-binclass")
 ```r
 pip install ensemble-binclass
 ```
+## Import module
+```r
+from ensemble-binclass import ... as ...
+from ensemble-binclass import ... as ...
+import pandas as pd
+import numpy as np
+```
+### Load example training data
+```r
+download.file("https://raw.githubusercontent.com/biocsuwb/EnsembleFS-package/main/data/correctData/correctData/df.RNA.merge.image.LGG.csv", 
+              destfile = "correctData/correctData/df.RNA.merge.image.LGG.csv", method = "curl")
+
+data_RNA = dp.OmicDataPreprocessing(path='correctData/df.RNA.merge.image.LGG.csv')
+
+data_RNA.load_data()
+```
+
+## Example 1 - Construct the predictive model with molecular data by using one of eight basic classifiers
+### Prepare omic data for machine learning
+```r
+```
+## Example 2 - Construct the predictive model with molecular data by using stacking ensemble learning
+```r
+```
+## Example 3 - Construct the predictive model with molecular data by using boosting ensemble learning
+```r
+```
+## Example 4 - Construct the predictive model with molecular data by using bagging ensemble learning
+```r
+```
