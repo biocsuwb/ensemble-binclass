@@ -36,6 +36,11 @@ from ensemble-binclass import ... as ...
 import pandas as pd
 import numpy as np
 ```
+## Example data sets
+The RNA-sequencing data of subtypes low-grade glioblastoma (LGG) patients from The Cancer Genome Atlas database ([TCGA](https://www.cancer.gov/tcga)) was used. The preprocessing of data involved standard steps for RNA-Seq data. The log2 transformation was performed. Features with zero and near-zero (1%) variance across patients were removed. After preprocessing, the primary dataset contains xxx tumor samples (wymienic podtypy) described with xxx differentially expressed genes (DEGs). This dataset includes highly correlated features, and the number of cancer samples is roughly ten times more than normal samples. For testing purposes, the number of molecular markers was limited to 2000 DEGs ranked by the highest difference in the gene expression level between subtypes of tumor ([exampleData_TCGA_LUAD_2000.csv](https://github.com/biocsuwb/EnsembleFS-package/tree/main/data)). 
+
+The first column ("class") includes the subtype of patients with LGG. 
+
 ### Load example training data
 ```r
 download.file("https://raw.githubusercontent.com/biocsuwb/EnsembleFS-package/main/data/correctData/correctData/df.RNA.merge.image.LGG.csv", 
