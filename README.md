@@ -41,6 +41,7 @@ The RNA-sequencing data of subtypes low-grade glioblastoma (LGG) patients from T
 
 The first column ("class") includes the subtype of patients with LGG. 
 
+## Example 1 - Construct the predictive model with molecular data by using one of eight basic classifiers
 ### Load example training data
 ```r
 download.file("https://raw.githubusercontent.com/biocsuwb/EnsembleFS-package/main/data/correctData/correctData/df.RNA.merge.image.LGG.csv", 
@@ -50,11 +51,17 @@ data_RNA = dp.OmicDataPreprocessing(path='correctData/df.RNA.merge.image.LGG.csv
 
 data_RNA.load_data()
 ```
-
-## Example 1 - Construct the predictive model with molecular data by using one of eight basic classifiers
 ### Prepare omic data for machine learning
 ```r
 ```
+#### Model (optional) configuration parameters
+- U-test parameter, multitest correction:  ***adjust = {"holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"}***;
+- U-test parameter, significance level: ***alpha = 0.05***;
+- validation methods: ***method.cv = {'kfoldcv','rsampling'}***;
+- number of repetitions: ***niter = 10***;
+- train-test-split the data: ***k = 3*** for stratified k-fold cross-validation and ***test.size = 0.3*** for random sampling;
+- classifier: SVM;
+- classifier parameter: ***kernel = ***{‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’}***;
 ## Example 2 - Construct the predictive model with molecular data by using stacking ensemble learning
 ```r
 ```
