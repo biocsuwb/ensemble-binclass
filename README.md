@@ -13,5 +13,6 @@ Predictive models are built using the Random Forest algorithm ([Breiman 2001](ht
 * compare the predictive performance of models and the stability of selected feature sets for selected FS algorithms, individual classifiers, and combined classifiers;  
 * establish the selected parameters for predictive models, such as the number of top N informative features;
 * product plots to visualize the model results;
+  
 ![Fig.1](https://github.com/biocsuwb/Images/blob/main/EnsembleLearning.jpg?raw=true) 
 Fig.1 Ensemble learning.
