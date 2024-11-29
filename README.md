@@ -16,7 +16,7 @@ Predictive models are built using the Random Forest algorithm ([Breiman 2001](ht
   
 ![Fig.1](https://github.com/biocsuwb/Images/blob/main/EnsembleLearning.jpg?raw=true) 
 
-Fig.1 Ensemble learning.
+Fig.1 The ensemble learning strategy in ensemble-binclass.
 
 ## Install package
 ### Install the development version from GitHub:
