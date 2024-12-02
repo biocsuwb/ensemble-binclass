@@ -117,12 +117,12 @@ class Ensemble:
 
         return predict_proba
 
-    def stacking(self):
+    def stacking(self, final_estimator=None):
         start_time = time.time()
 
         predict_proba = []
         for fold in range(self.fold):
-            stacking = StackingClassifier(estimators=self.model_classifiers)
+            stacking = StackingClassifier(estimators=self.model_classifiers, final_estimator=final_estimator)
             stacking.fit(self.X_train[fold], self.y_train[fold])
             predict_proba.append(stacking.predict(self.X_test[fold]))
 
