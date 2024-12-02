@@ -7,10 +7,10 @@ from scipy.stats import mannwhitneyu
 
 
 class FeatureSelection:
-    def __init__(self, X: pd.DataFrame, y: pd.Series, method: str, size: int, **kwargs):
+    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str, size: int, **kwargs):
         self.X = X
         self.y = y
-        self.method = method
+        self.method = method_
         self.size = size
         self.features = None
 
@@ -28,18 +28,33 @@ class FeatureSelection:
 
     def lasso(self, **kwargs):
         alpha = kwargs.get('alpha', 0.00001)
+        fit_intercept = kwargs.get('fit_intercept', True)
+        precompute = kwargs.get('precompute', False)
         max_iter = kwargs.get('max_iter', 10000)
-        lasso = Lasso(alpha=alpha, max_iter=max_iter)
+        tol = kwargs.get('tol', 0.0001)
+        selection = kwargs.get('selection', 'cyclic')
+        random_state = kwargs.get('random_state', 42)
+        lasso = Lasso(alpha=alpha,
+                      fit_intercept=fit_intercept,
+                      precompute=precompute,
+                      max_iter=max_iter,
+                      tol=tol,
+                      selection=selection,
+                      random_state=random_state,
+                      )
         lasso.fit(self.X, self.y)
         self.features = pd.Series(data=list(np.array(self.X.columns)[:self.size]), name="Lasso")
         return self.features
 
     def relieff(self, **kwargs):
+        n_neighbors = kwargs.get('n_neighbors', 100)
         n_features_to_keep = kwargs.get('n_features_to_keep', self.size)
         X_array = self.X.values
         y_array = self.y.values
 
-        fs = ReliefF(n_neighbors=100, n_features_to_keep=n_features_to_keep)
+        fs = ReliefF(
+            n_neighbors=n_neighbors,
+            n_features_to_keep=n_features_to_keep)
         fs.fit(X_array, y_array)
 
         feature_scores = fs.feature_scores
@@ -49,12 +64,38 @@ class FeatureSelection:
         self.features = pd.Series(data=relieff_features, name="ReliefF")
         return relieff_features
 
-    def mrmr(self):
-        mrmr_features = mrmr_classif(self.X, self.y, K=self.size)
+    def mrmr(self, **kwargs):
+        relevance = kwargs.get('relevance', 'f')
+        redundancy = kwargs.get('redundancy', 'c')
+        denominator = kwargs.get('denominator', 'mean')
+        cat_features = kwargs.get('cat_features', None)
+        only_same_domain = kwargs.get('only_same_domain', False)
+        return_scores = kwargs.get('return_scores', False)
+        n_jobs = kwargs.get('n_jobs', -1)
+        show_progress = kwargs.get('show_progress', True)
+
+        mrmr_features = mrmr_classif(
+            self.X,
+            self.y,
+            K=self.size,
+            relevance=relevance,
+            redundancy=redundancy,
+            denominator=denominator,
+            cat_features=cat_features,
+            only_same_domain=only_same_domain,
+            return_scores=return_scores,
+            n_jobs=n_jobs,
+            show_progress=show_progress,
+        )
         self.features = pd.Series(data=mrmr_features, name="Mrmr")
         return mrmr_features
 
-    def u_test(self):
+    def u_test(self, **kwargs):
+        use_continuity = kwargs.get('use_continuity', True)
+        alternative = kwargs.get('alternative', 'two-sided')
+        axis = kwargs.get('axis', 0)
+        method = kwargs.get('method', 'auto')
+
         data_class1 = self.y
         data_class2 = self.X
 
@@ -63,7 +104,14 @@ class FeatureSelection:
         p_value_df = pd.DataFrame(index=self.X.columns[:-1], columns=['p_value'])
 
         def do_utest(i):
-            stat, p_value = mannwhitneyu(data_class1, data_class2.iloc[:, i])
+            stat, p_value = mannwhitneyu(
+                data_class1,
+                data_class2.iloc[:, i],
+                use_continuity=use_continuity,
+                alternative=alternative,
+                axis=axis,
+                method=method,
+            )
             p_value_df.loc[self.X.columns[i - 1], 'p_value'] = p_value
 
         n_features = data_class2.shape[1]
