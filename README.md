@@ -42,7 +42,7 @@ The RNA-sequencing data of subtypes low-grade glioblastoma (LGG) patients from T
 The first column ("class") includes the subtype of patients with LGG. 
 
 ## Challenges in analysing molecular data
-![Fig.2](https://github.com/biocsuwb/Images/blob/main/Problem_dataomics.jpg?raw=true) 
+![Fig.2](https://github.com/biocsuwb/Images/blob/main/Problem_dataomics.jpg?raw=true | width=50) 
 
 
 ## Example 1 - Construct the predictive model with molecular data by using one of eight basic classifiers
