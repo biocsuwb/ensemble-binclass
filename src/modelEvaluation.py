@@ -26,21 +26,35 @@ class ModelEvaluation:
 
         return X_train_list, X_test_list, y_train_list, y_test_list
 
-    def hold_out(self, test_size: float):
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=test_size, random_state=42)
+    def hold_out(self, test_size: float, **kwargs):
+        X_train, X_test, y_train, y_test = train_test_split(self.X,
+                                                            self.y,
+                                                            test_size=kwargs.get('test_size', test_size),
+                                                            shuffle=kwargs.get('shuffle', True),
+                                                            stratify=kwargs.get('stratify', None),
+                                                            random_state=kwargs.get('random_state', 42),
+                                                            )
 
         return X_train, X_test, y_train, y_test
 
-    def k_fold(self, n_splits: int):
-        kf = KFold(n_splits=n_splits)
+    def k_fold(self, n_splits: int, **kwargs):
+        kf = KFold(
+            n_splits=n_splits,
+            shuffle=kwargs.get('shuffle', True),
+            random_state=42,
+        )
         split_indices = list(kf.split(self.X))
 
         X_train_list, X_test_list, y_train_list, y_test_list = self._split_data_and_append(split_indices)
 
         return X_train_list, X_test_list, y_train_list, y_test_list
 
-    def stratified_k_fold(self, n_splits: int):
-        skf = StratifiedKFold(n_splits=n_splits)
+    def stratified_k_fold(self, n_splits: int, **kwargs):
+        skf = StratifiedKFold(
+            n_splits=kwargs.get('n_splits', n_splits),
+            shuffle=kwargs.get('shuffle', True),
+            random_state=42,
+        )
         split_indices = list(skf.split(self.X, self.y))
 
         X_train_list, X_test_list, y_train_list, y_test_list = self._split_data_and_append(split_indices)
