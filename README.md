@@ -43,7 +43,7 @@ The first column ("class") includes the subtype of patients with LGG.
 
 ## Challenges in analysing molecular data
 <p align="center">
-    <img src="https://github.com/biocsuwb/Images/blob/main/Problem_dataomics.jpg?raw=true" alt="Fig.2" width="600">
+    <img src="https://github.com/biocsuwb/Images/blob/main/Problem_dataomics.jpg?raw=true" alt="Fig.2" width="650">
 </p>
 
 ## Example 1 - Construct the predictive model with molecular data by using one of eight basic classifiers
