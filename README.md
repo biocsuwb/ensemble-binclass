@@ -18,6 +18,11 @@ Predictive models are built using the Random Forest algorithm ([Breiman 2001](ht
 
 Fig.1 The ensemble learning strategy in ensemble-binclass.
 
+## General workflow of the ensemble learning
+<p align="center">
+    <img src="https://github.com/biocsuwb/Images/blob/main/WorkflowEnsembleBin.jpg?raw=true" alt="Fig.3 Flowchart of ensemble learning. " width="650">
+</p>
+
 ## Install package
 ### Install the development version from GitHub:
 To install this package, clone the repository and install with pip:
