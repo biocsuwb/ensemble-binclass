@@ -20,7 +20,7 @@ Fig.1 The ensemble learning strategy in ensemble-binclass.
 
 ## General workflow of the ensemble learning
 <p align="center">
-    <img src="https://github.com/biocsuwb/Images/blob/main/WorkflowEnsembleBin.jpg?raw=true" alt="Fig.3 Flowchart of ensemble learning. " width="450">
+    <img src="https://github.com/biocsuwb/Images/blob/main/WorkflowEnsembleBin.jpg?raw=true" alt="Fig.3 Flowchart of ensemble learning. " width="500">
 </p>
 
 ## Install package
