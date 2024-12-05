@@ -7,22 +7,23 @@ from scipy.stats import mannwhitneyu
 
 
 class FeatureSelection:
-    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str, size: int, **kwargs):
+    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str, size: int, params: dict = None):
         self.X = X
         self.y = y
         self.method = method_
         self.size = size
         self.features = None
+        self.params = params
 
         match self.method:
             case 'lasso':
-                self.lasso(**kwargs)
+                self.lasso(**params)
             case 'relieff':
-                self.relieff(**kwargs)
+                self.relieff(**params)
             case 'mrmr':
-                self.mrmr(**kwargs)
+                self.mrmr(**params)
             case 'uTest':
-                self.u_test(**kwargs)
+                self.u_test(**params)
             case _:
                 raise ValueError('Unknown method')
 
@@ -56,7 +57,7 @@ class FeatureSelection:
         top_k_features = feature_scores_df.sort_values(by='Score', ascending=False).head(self.size)
         relieff_features = top_k_features['Feature'].tolist()
         self.features = pd.Series(data=relieff_features, name="ReliefF")
-        return relieff_features
+        return self.features
 
     def mrmr(self, **kwargs):
         mrmr_features = mrmr_classif(
@@ -73,7 +74,7 @@ class FeatureSelection:
             show_progress=kwargs.get('show_progress', True),
         )
         self.features = pd.Series(data=mrmr_features, name="Mrmr")
-        return mrmr_features
+        return self.features
 
     def u_test(self, **kwargs):
         data_class1 = self.y
@@ -103,12 +104,9 @@ class FeatureSelection:
         utest_features = sorted_p_value_df.loc[sorted_p_value_df['p_value'] < alpha]
         utest_features = utest_features.index.tolist()[:self.size]
         self.features = pd.Series(data=utest_features, name="U-test")
-        return utest_features
+        return self.features
 
     def show_features(self, size: int = 10):
         if size > self.size:
             raise ValueError("size is larger than the list of features")
         print(self.features[:size])
-
-    def get_features(self):
-        return self.features
