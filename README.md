@@ -51,6 +51,16 @@ The first column ("class") includes the subtype of patients with LGG.
     <img src="https://github.com/biocsuwb/Images/blob/main/Problem_dataomics.jpg?raw=true" alt="Fig.2" width="650">
 </p>
 
+## Detailed step-by-step instruction on how to conduct the analysis:
+1. Identify relevant variables (candidate diagnostic biomarkers) by using FS methods
+2. Remove redundant variables (correlated biomarkers)
+3. Select top-N relevant variables 
+4. Select a method to validate the ML model
+5. Construct predictive model using individual classifier or ensemble classifier 
+6. Evaluate biomarker discovery methods
+7. Perform hyperparameter optimization for classifier algorithm
+8. Construct diagnosis system using the best classifier 
+
 ## Example 1 - Construct the predictive model with molecular data by using one of eight basic classifiers
 ### Load example training data
 ```r
