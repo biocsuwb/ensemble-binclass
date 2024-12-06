@@ -11,16 +11,13 @@ from xgboost import XGBClassifier
 
 
 class Ensemble:
-    def __init__(self, X: pd.DataFrame = None, y: pd.Series = None, features: pd.Series = None,
+    def __init__(self, X: pd.DataFrame = None, y: pd.Series = None, features: list = None,
                  classifiers: list = None, classifier_params: list = None, cv: str = 'hold_out',
                  cv_params: dict = None, ensemble: list = None, ensemble_params: list = None):
-        self.X = X[features] if features is not None else X
-        self.fs = features.name
+        self.X = X
         self.y = y
-        self.X_train = None
-        self.X_test = None
-        self.y_train = None
-        self.y_test = None
+        self.fs = None
+        self.features = features
         self.classifiers = classifiers
         self.classifier_params = classifier_params
         self.model_classifiers = {}
@@ -32,63 +29,67 @@ class Ensemble:
         self.time = {}
         self.n_splits = cv_params.get('n_splits', 10)
 
-        me = modelEvaluation.ModelEvaluation(self.X, self.y)
+        for feature_set in self.features:
+            X_ = self.X[feature_set]
+            self.fs = feature_set.name
 
-        match self.cross_validation:
-            case 'hold_out':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.hold_out(**self.cv_params)
-            case 'k_fold':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.k_fold(**self.cv_params)
-            case 'stratified_k_fold':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.stratified_k_fold(**self.cv_params)
-            case 'leave_one_out':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.leave_one_out()
-            case _:
-                raise ValueError('Invalid cross_validation')
+            me = modelEvaluation.ModelEvaluation(X_, self.y)
 
-        for classifier, params in zip(self.classifiers, self.classifier_params):
-            match classifier:
-                case 'adaboost':
-                    self.model_classifiers['adaboost'] = AdaBoostClassifier(**params['adaboost'])
-                case 'gradient_boosting':
-                    self.model_classifiers['gradient_boosting'] = GradientBoostingClassifier(**params['gradient_boosting'])
-                case 'random_forest':
-                    self.model_classifiers['random_forest'] = RandomForestClassifier(**params['random_forest'])
-                case 'k_neighbors':
-                    self.model_classifiers['k_neighbors'] = KNeighborsClassifier(**params['k_neighbors'])
-                case 'decision_tree':
-                    self.model_classifiers['decision_tree'] = DecisionTreeClassifier(**params['decision_tree'])
-                case 'extra_trees':
-                    self.model_classifiers['extra_trees'] = ExtraTreesClassifier(**params['extra_trees'])
-                case 'svm':
-                    params['svm']['probability'] = True
-                    self.model_classifiers['svm'] = SVC(**params['svm'])
-                case 'xgb':
-                    self.model_classifiers['xgb'] = XGBClassifier(**params['xgb'])
-                case 'all':
-                    self.model_classifiers['adaboost'] = AdaBoostClassifier(**params['adaboost'])
-                    self.model_classifiers['gradient_boosting'] = GradientBoostingClassifier(**params['gradient_boosting'])
-                    self.model_classifiers['random_forest'] = RandomForestClassifier(**params['random_forest'])
-                    self.model_classifiers['k_neighbors'] = KNeighborsClassifier(**params['k_neighbors'])
-                    self.model_classifiers['decision_tree'] = DecisionTreeClassifier(**params['decision_tree'])
-                    self.model_classifiers['extra_trees'] = ExtraTreesClassifier(**params['extra_trees'])
-                    self.model_classifiers['svm'] = SVC(**params['svm'])
-                    self.model_classifiers['xgb'] = XGBClassifier(**params['xgb'])
+            match self.cross_validation:
+                case 'hold_out':
+                    self.X_train, self.X_test, self.y_train, self.y_test = me.hold_out(**self.cv_params)
+                case 'k_fold':
+                    self.X_train, self.X_test, self.y_train, self.y_test = me.k_fold(**self.cv_params)
+                case 'stratified_k_fold':
+                    self.X_train, self.X_test, self.y_train, self.y_test = me.stratified_k_fold(**self.cv_params)
+                case 'leave_one_out':
+                    self.X_train, self.X_test, self.y_train, self.y_test = me.leave_one_out()
                 case _:
-                    raise ValueError('Invalid classifier name')
+                    raise ValueError('Invalid cross_validation')
 
-        for ensemble, params in zip(self.ensemble, self.ensemble_params):
-            match ensemble:
-                case 'voting':
-                    self.predictions['voting'] = self.voting(**params['voting'])
-                case 'bagging':
-                    self.predictions['bagging'] = self.bagging(**params['bagging'])
-                case 'stacking':
-                    self.predictions['stacking'] = self.stacking(**params['stacking'])
-                case 'all':
-                    self.predictions['voting'] = self.voting(**params['voting'])
-                    self.predictions['bagging'] = self.bagging(**params['bagging'])
-                    self.predictions['stacking'] = self.stacking(**params['stacking'])
+            for classifier, params in zip(self.classifiers, self.classifier_params):
+                match classifier:
+                    case 'adaboost':
+                        self.model_classifiers['adaboost'] = AdaBoostClassifier(**params['adaboost'])
+                    case 'gradient_boosting':
+                        self.model_classifiers['gradient_boosting'] = GradientBoostingClassifier(**params['gradient_boosting'])
+                    case 'random_forest':
+                        self.model_classifiers['random_forest'] = RandomForestClassifier(**params['random_forest'])
+                    case 'k_neighbors':
+                        self.model_classifiers['k_neighbors'] = KNeighborsClassifier(**params['k_neighbors'])
+                    case 'decision_tree':
+                        self.model_classifiers['decision_tree'] = DecisionTreeClassifier(**params['decision_tree'])
+                    case 'extra_trees':
+                        self.model_classifiers['extra_trees'] = ExtraTreesClassifier(**params['extra_trees'])
+                    case 'svm':
+                        params['svm']['probability'] = True
+                        self.model_classifiers['svm'] = SVC(**params['svm'])
+                    case 'xgb':
+                        self.model_classifiers['xgb'] = XGBClassifier(**params['xgb'])
+                    case 'all':
+                        self.model_classifiers['adaboost'] = AdaBoostClassifier(**params['adaboost'])
+                        self.model_classifiers['gradient_boosting'] = GradientBoostingClassifier(**params['gradient_boosting'])
+                        self.model_classifiers['random_forest'] = RandomForestClassifier(**params['random_forest'])
+                        self.model_classifiers['k_neighbors'] = KNeighborsClassifier(**params['k_neighbors'])
+                        self.model_classifiers['decision_tree'] = DecisionTreeClassifier(**params['decision_tree'])
+                        self.model_classifiers['extra_trees'] = ExtraTreesClassifier(**params['extra_trees'])
+                        self.model_classifiers['svm'] = SVC(**params['svm'])
+                        self.model_classifiers['xgb'] = XGBClassifier(**params['xgb'])
+                    case _:
+                        raise ValueError('Invalid classifier name')
+
+            for ensemble, params in zip(self.ensemble, self.ensemble_params):
+                match ensemble:
+                    case 'voting':
+                        self.predictions[f'voting_{feature_set.name}'] = self.voting(**params['voting'])
+                    case 'bagging':
+                        self.predictions[f'bagging_{feature_set.name}'] = self.bagging(**params['bagging'])
+                    case 'stacking':
+                        self.predictions[f'stacking_{feature_set.name}'] = self.stacking(**params['stacking'])
+                    case 'all':
+                        self.predictions[f'voting_{feature_set.name}'] = self.voting(**params['voting'])
+                        self.predictions[f'bagging_{feature_set.name}'] = self.bagging(**params['bagging'])
+                        self.predictions[f'stacking_{feature_set.name}'] = self.stacking(**params['stacking'])
 
     def voting(self, **kwargs):
         estimators = [(name, clf) for name, clf in self.model_classifiers.items()]

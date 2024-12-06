@@ -13,16 +13,13 @@ from xgboost import XGBClassifier
 
 
 class Classifier:
-    def __init__(self, X: pd.DataFrame = None, y: pd.Series = None, features: pd.Series = None,
+    def __init__(self, X: pd.DataFrame = None, y: pd.Series = None, features: list = None,
                  classifiers: list = None, classifier_params: list = None,
                  cv: str = 'hold_out', cv_params: dict = None):
-        self.X = X[features] if features is not None else X
-        self.fs = features.name
+        self.X = X
         self.y = y
-        self.X_train = None
-        self.X_test = None
-        self.y_train = None
-        self.y_test = None
+        self.fs = None
+        self.features = features
         self.classifiers = classifiers
         self.classifier_params = classifier_params
         self.cross_validation = cv
@@ -31,49 +28,53 @@ class Classifier:
         self.time = {}
         self.n_splits = cv_params.get('n_splits', 10)
 
-        me = modelEvaluation.ModelEvaluation(self.X, self.y)
+        for feature_set in self.features:
+            X_ = self.X[feature_set]
+            self.fs = feature_set.name
 
-        match self.cross_validation:
-            case 'hold_out':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.hold_out(**self.cv_params)
-            case 'k_fold':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.k_fold(**self.cv_params)
-            case 'stratified_k_fold':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.stratified_k_fold(**self.cv_params)
-            case 'leave_one_out':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.leave_one_out()
-            case _:
-                raise ValueError('Invalid cross_validation')
+            me = modelEvaluation.ModelEvaluation(X_, self.y)
 
-        for classifier, params in zip(self.classifiers, self.classifier_params):
-            match classifier:
-                case 'adaboost':
-                    self.predictions['adaboost'] = self.adaboost(**params)
-                case 'gradient_boosting':
-                    self.predictions['gradient boosting'] = self.gradient_boosting(**params)
-                case 'random_forest':
-                    self.predictions['random forest'] = self.random_forest(**params)
-                case 'k_neighbors':
-                    self.predictions['k nearest neighbors'] = self.k_nearest_neighbors(**params)
-                case 'decision_tree':
-                    self.predictions['decision tree'] = self.decision_tree(**params)
-                case 'extra_trees':
-                    self.predictions['extra trees'] = self.extra_trees(**params)
-                case 'svm':
-                    self.predictions['svm'] = self.svm(**params)
-                case 'xgb':
-                    self.predictions['xgb'] = self.xgb(**params)
-                case 'all':
-                    self.predictions['adaboost'] = self.adaboost(**params)
-                    self.predictions['gradient boosting'] = self.gradient_boosting(**params)
-                    self.predictions['random forest'] = self.random_forest(**params)
-                    self.predictions['k nearest neighbors'] = self.k_nearest_neighbors(**params)
-                    self.predictions['decision tree'] = self.decision_tree(**params)
-                    self.predictions['extra trees'] = self.extra_trees(**params)
-                    self.predictions['svm'] = self.svm(**params)
-                    self.predictions['xgb'] = self.xgb(**params)
+            match self.cross_validation:
+                case 'hold_out':
+                    self.X_train, self.X_test, self.y_train, self.y_test = me.hold_out(**self.cv_params)
+                case 'k_fold':
+                    self.X_train, self.X_test, self.y_train, self.y_test = me.k_fold(**self.cv_params)
+                case 'stratified_k_fold':
+                    self.X_train, self.X_test, self.y_train, self.y_test = me.stratified_k_fold(**self.cv_params)
+                case 'leave_one_out':
+                    self.X_train, self.X_test, self.y_train, self.y_test = me.leave_one_out()
                 case _:
-                    raise ValueError('Invalid classifier name')
+                    raise ValueError('Invalid cross_validation')
+
+            for classifier, params in zip(self.classifiers, self.classifier_params):
+                match classifier:
+                    case 'adaboost':
+                        self.predictions[f'adaboost_{feature_set.name}'] = self.adaboost(**params)
+                    case 'gradient_boosting':
+                        self.predictions[f'gradient_boosting_{feature_set.name}'] = self.gradient_boosting(**params)
+                    case 'random_forest':
+                        self.predictions[f'random_forest_{feature_set.name}'] = self.random_forest(**params)
+                    case 'k_neighbors':
+                        self.predictions[f'k_nearest_neighbors_{feature_set.name}'] = self.k_nearest_neighbors(**params)
+                    case 'decision_tree':
+                        self.predictions[f'decision_tree_{feature_set.name}'] = self.decision_tree(**params)
+                    case 'extra_trees':
+                        self.predictions[f'extra_trees_{feature_set.name}'] = self.extra_trees(**params)
+                    case 'svm':
+                        self.predictions[f'svm_{feature_set.name}'] = self.svm(**params)
+                    case 'xgb':
+                        self.predictions[f'xgb_{feature_set.name}'] = self.xgb(**params)
+                    case 'all':
+                        self.predictions[f'adaboost_{feature_set.name}'] = self.adaboost(**params)
+                        self.predictions[f'gradient_boosting_{feature_set.name}'] = self.gradient_boosting(**params)
+                        self.predictions[f'random_forest_{feature_set.name}'] = self.random_forest(**params)
+                        self.predictions[f'k_nearest_neighbors_{feature_set.name}'] = self.k_nearest_neighbors(**params)
+                        self.predictions[f'decision_tree_{feature_set.name}'] = self.decision_tree(**params)
+                        self.predictions[f'extra_trees_{feature_set.name}'] = self.extra_trees(**params)
+                        self.predictions[f'svm_{feature_set.name}'] = self.svm(**params)
+                        self.predictions[f'xgb_{feature_set.name}'] = self.xgb(**params)
+                    case _:
+                        raise ValueError('Invalid classifier name')
 
     def adaboost(self, **kwargs):
         start_time = time.time()
