@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import src.modelEvaluation as modelEvaluation
+from src.performanceMetrics import PerformanceMetrics
 from sklearn.ensemble import VotingClassifier, BaggingClassifier, StackingClassifier, AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier, \
     RandomForestClassifier
 from sklearn.svm import SVC
@@ -166,3 +167,27 @@ class Ensemble:
         self.time['stacking'] = end_time - start_time
 
         return predict_proba
+
+    def f1_score(self):
+        pm = PerformanceMetrics(self)
+        return pm.f1_score()
+
+    def accuracy_score(self):
+        pm = PerformanceMetrics(self)
+        return pm.accuracy_score()
+
+    def roc_auc(self):
+        pm = PerformanceMetrics(self)
+        return pm.roc_auc()
+
+    def matthews_corrcoef(self):
+        pm = PerformanceMetrics(self)
+        return pm.matthews_corrcoef()
+
+    def confusion_matrix(self):
+        pm = PerformanceMetrics(self)
+        return pm.confusion_matrix()
+
+    def all_metrics(self):
+        pm = PerformanceMetrics(self)
+        return pm.all_metrics()
