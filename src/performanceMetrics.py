@@ -16,7 +16,7 @@ class PerformanceMetrics:
         self.check_for_none()
 
     def check_for_none(self):
-        if any(var is None for var in [self.y_test, self.y_pred, self.time, self.fold, self.fs]):
+        if any(var is None for var in [self.y_test, self.y_pred, self.time, self.fold]):
             raise ValueError("One or more classifier variables are invalid.")
 
     def confusion_matrix(self):
