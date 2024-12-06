@@ -76,7 +76,22 @@ data_RNA = dp.OmicDataPreprocessing(path='correctData/df.RNA.merge.image.LGG.csv
 data_RNA.load_data()
 ```
 ### Prepare omic data for machine learning
-```r
+```python
+lasso_features = fs.FeatureSelection(
+    X, 
+    y,
+    method_='lasso',
+    size=100,
+    params={
+        'alpha': 0.1,
+        'fit_intercept': True,
+        'precompute': False,
+        'max_iter': 10000,
+        'tol': 0.0001,
+        'selection': 'cyclic',
+        'random_state': 42,
+    },
+)
 ```
 #### Model (optional) configuration parameters
 - U-test parameter, multitest correction:  ***adjust = {"holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"}***;
