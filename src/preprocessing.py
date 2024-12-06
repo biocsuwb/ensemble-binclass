@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import os
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 
@@ -64,7 +63,7 @@ class DataPreprocessing:
         self.X = pd.DataFrame(scaler.transform(self.X), index=self.X.index, columns=self.X.columns)
         return self.X
 
-    def remove_collinear_features(self, threshold: float = 0.9):
+    def remove_collinear_features(self, threshold: float = 0.75):
         col_corr = set()
         corr_matrix = self.X.corr("spearman")
         for i in range(len(corr_matrix.columns)):
