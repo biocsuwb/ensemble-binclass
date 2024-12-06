@@ -76,7 +76,6 @@ class Classifier:
                     raise ValueError('Invalid classifier name')
 
     def adaboost(self, **kwargs):
-        print('Adaboost params:', kwargs)
         start_time = time.time()
 
         predict_proba = []
