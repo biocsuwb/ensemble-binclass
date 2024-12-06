@@ -1,4 +1,6 @@
 import time
+
+import numpy as np
 import pandas as pd
 import src.modelEvaluation as modelEvaluation
 from src.performanceMetrics import PerformanceMetrics
@@ -12,7 +14,7 @@ from xgboost import XGBClassifier
 
 class Classifier:
     def __init__(self, X: pd.DataFrame = None, y: pd.Series = None, features: pd.Series = None,
-                 classifiers: list = None, classifier_params: dict = None,
+                 classifiers: list = None, classifier_params: list = None,
                  cv: str = 'hold_out', cv_params: dict = None):
         self.X = X[features] if features is not None else X
         self.fs = features.name
@@ -27,6 +29,7 @@ class Classifier:
         self.cv_params = cv_params
         self.predictions = {}
         self.time = {}
+        self.n_spltis = cv_params.get('n_splits', 10)
 
         me = modelEvaluation.ModelEvaluation(self.X, self.y)
 
@@ -42,42 +45,42 @@ class Classifier:
             case _:
                 raise ValueError('Invalid cross_validation')
 
-        for classifier in self.classifiers:
+        for classifier, params in zip(self.classifiers, self.classifier_params):
             match classifier:
                 case 'adaboost':
-                    self.predictions['adaboost'] = self.adaboost(**self.classifier_params)
+                    self.predictions['adaboost'] = self.adaboost(**params)
                 case 'gradient_boosting':
-                    self.predictions['gradient boosting'] = self.gradient_boosting(**self.classifier_params)
+                    self.predictions['gradient boosting'] = self.gradient_boosting(**params)
                 case 'random_forest':
-                    self.predictions['random forest'] = self.random_forest(**self.classifier_params)
+                    self.predictions['random forest'] = self.random_forest(**params)
                 case 'k_neighbors':
-                    self.predictions['k nearest neighbors'] = self.k_nearest_neighbors(**self.classifier_params)
+                    self.predictions['k nearest neighbors'] = self.k_nearest_neighbors(**params)
                 case 'decision_tree':
-                    self.predictions['decision tree'] = self.decision_tree(**self.classifier_params)
+                    self.predictions['decision tree'] = self.decision_tree(**params)
                 case 'extra_trees':
-                    self.predictions['extra trees'] = self.extra_trees(**self.classifier_params)
+                    self.predictions['extra trees'] = self.extra_trees(**params)
                 case 'svm':
-                    self.predictions['svm'] = self.svm(**self.classifier_params)
+                    self.predictions['svm'] = self.svm(**params)
                 case 'xgb':
-                    self.predictions['xgb'] = self.xgb(**self.classifier_params)
+                    self.predictions['xgb'] = self.xgb(**params)
                 case 'all':
-                    self.predictions['adaboost'] = self.adaboost(**self.classifier_params)
-                    self.predictions['gradient boosting'] = self.gradient_boosting(**self.classifier_params)
-                    self.predictions['random forest'] = self.random_forest(**self.classifier_params)
-                    self.predictions['k nearest neighbors'] = self.k_nearest_neighbors(**self.classifier_params)
-                    self.predictions['decision tree'] = self.decision_tree(**self.classifier_params)
-                    self.predictions['extra trees'] = self.extra_trees(**self.classifier_params)
-                    self.predictions['svm'] = self.svm(**self.classifier_params)
-                    self.predictions['xgb'] = self.xgb(**self.classifier_params)
+                    self.predictions['adaboost'] = self.adaboost(**params)
+                    self.predictions['gradient boosting'] = self.gradient_boosting(**params)
+                    self.predictions['random forest'] = self.random_forest(**params)
+                    self.predictions['k nearest neighbors'] = self.k_nearest_neighbors(**params)
+                    self.predictions['decision tree'] = self.decision_tree(**params)
+                    self.predictions['extra trees'] = self.extra_trees(**params)
+                    self.predictions['svm'] = self.svm(**params)
+                    self.predictions['xgb'] = self.xgb(**params)
                 case _:
                     raise ValueError('Invalid classifier name')
 
     def adaboost(self, **kwargs):
+        print('Adaboost params:', kwargs)
         start_time = time.time()
-        fold = kwargs.get('n_splits', 10)
 
         predict_proba = []
-        for fold in range(fold):
+        for fold in range(self.n_spltis):
             adaboostClf = AdaBoostClassifier(
                 estimator=kwargs.get('estimator_', None),
                 n_estimators=kwargs.get('n_estimators', 50),
@@ -94,7 +97,7 @@ class Classifier:
         return predict_proba
 
     def gradient_boosting(self, **kwargs):
-        fold = kwargs.get('n_splits', 10)
+        fold = self.cv_params['n_splits']
 
         start_time = time.time()
 
@@ -131,7 +134,7 @@ class Classifier:
         return predict_proba
 
     def random_forest(self, **kwargs):
-        fold = kwargs.get('n_splits', 10)
+        fold = self.cv_params['n_splits']
 
         start_time = time.time()
 
@@ -167,7 +170,7 @@ class Classifier:
         return predict_proba
 
     def k_nearest_neighbors(self, **kwargs):
-        fold = kwargs.get('n_splits', 10)
+        fold = self.cv_params['n_splits']
 
         start_time = time.time()
 
@@ -192,7 +195,7 @@ class Classifier:
         return predict_proba
 
     def decision_tree(self, **kwargs):
-        fold = kwargs.get('n_splits', 10)
+        fold = self.cv_params['n_splits']
 
         start_time = time.time()
 
@@ -222,7 +225,7 @@ class Classifier:
         return predict_proba
 
     def extra_trees(self, **kwargs):
-        fold = kwargs.get('n_splits', 10)
+        fold = self.cv_params['n_splits']
 
         start_time = time.time()
 
@@ -258,7 +261,7 @@ class Classifier:
         return predict_proba
 
     def svm(self, **kwargs):
-        fold = kwargs.get('n_splits', 10)
+        fold = self.cv_params['n_splits']
 
         start_time = time.time()
 
@@ -290,7 +293,7 @@ class Classifier:
         return predict_proba
 
     def xgb(self, **kwargs):
-        fold = kwargs.get('n_splits', 10)
+        fold = self.cv_params['n_splits']
 
         start_time = time.time()
 
@@ -317,7 +320,7 @@ class Classifier:
                 base_score=kwargs.get('base_score', 0.5),
                 random_state=kwargs.get('random_state', 42),
                 seed=kwargs.get('seed', None),
-                missing=kwargs.get('missing', None),
+                missing=kwargs.get('missing', np.nan),
             )
             xgbClf_f = xgbClf.fit(self.X_train[fold], self.y_train[fold])
             predict_proba.append(xgbClf_f.predict(self.X_test[fold]))
