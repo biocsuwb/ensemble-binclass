@@ -29,7 +29,7 @@ class Classifier:
         self.cv_params = cv_params
         self.predictions = {}
         self.time = {}
-        self.n_spltis = cv_params.get('n_splits', 10)
+        self.n_splits = cv_params.get('n_splits', 10)
 
         me = modelEvaluation.ModelEvaluation(self.X, self.y)
 
@@ -79,7 +79,7 @@ class Classifier:
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.n_spltis):
+        for fold in range(self.n_splits):
             adaboostClf = AdaBoostClassifier(
                 estimator=kwargs.get('estimator_', None),
                 n_estimators=kwargs.get('n_estimators', 50),
