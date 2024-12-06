@@ -1,6 +1,6 @@
 # The ensemble-binclass: an Python package for a feature selection and ensemble classification of molecular omic data
 ## Project developed by:
-Polewko-Klim Aneta and Szymon Kołodziejski
+Szymon Kołodziejski and Polewko-Klim Aneta
 ## Description
 ensemble-binclass is an python package for feature selection (FS) and ensemble classification of omic data (numeric data formats).
 This tool is based on four feature filters (**U-test**, the minimum redundancy maximum relevance (**MRMR**) 
