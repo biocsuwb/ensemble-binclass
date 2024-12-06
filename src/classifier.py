@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import src.modelEvaluation as modelEvaluation
+from src.performanceMetrics import PerformanceMetrics
 from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier, \
     RandomForestClassifier
 from sklearn.svm import SVC
@@ -12,7 +13,7 @@ from xgboost import XGBClassifier
 class Classifier:
     def __init__(self, X: pd.DataFrame = None, y: pd.Series = None, features: pd.Series = None,
                  classifiers: list = None, classifier_params: dict = None,
-                 cv: str = 'hold_out', cv_params: dict = None, fold: int = 1):
+                 cv: str = 'hold_out', cv_params: dict = None):
         self.X = X[features] if features is not None else X
         self.fs = features.name
         self.y = y
@@ -26,7 +27,6 @@ class Classifier:
         self.cv_params = cv_params
         self.predictions = {}
         self.time = {}
-        self.fold = fold
 
         me = modelEvaluation.ModelEvaluation(self.X, self.y)
 
@@ -74,9 +74,10 @@ class Classifier:
 
     def adaboost(self, **kwargs):
         start_time = time.time()
+        fold = kwargs.get('n_splits', 10)
 
         predict_proba = []
-        for fold in range(self.fold):
+        for fold in range(fold):
             adaboostClf = AdaBoostClassifier(
                 estimator=kwargs.get('estimator_', None),
                 n_estimators=kwargs.get('n_estimators', 50),
@@ -93,11 +94,12 @@ class Classifier:
         return predict_proba
 
     def gradient_boosting(self, **kwargs):
+        fold = kwargs.get('n_splits', 10)
 
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
+        for fold in range(fold):
             gboostClf = GradientBoostingClassifier(
                 loss=kwargs.get('loss', 'log_loss'),
                 learning_rate=kwargs.get('learning_rate', 0.1),
@@ -129,10 +131,12 @@ class Classifier:
         return predict_proba
 
     def random_forest(self, **kwargs):
+        fold = kwargs.get('n_splits', 10)
+
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
+        for fold in range(fold):
             randomForestClf = RandomForestClassifier(
                 n_estimators=kwargs.get('n_estimators', 100),
                 criterion=kwargs.get('criterion', 'gini'),
@@ -163,10 +167,12 @@ class Classifier:
         return predict_proba
 
     def k_nearest_neighbors(self, **kwargs):
+        fold = kwargs.get('n_splits', 10)
+
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
+        for fold in range(fold):
             kneighborsClf = KNeighborsClassifier(
                 n_neighbors=kwargs.get('n_neighbors', 5),
                 weights=kwargs.get('weights', 'uniform'),
@@ -186,10 +192,12 @@ class Classifier:
         return predict_proba
 
     def decision_tree(self, **kwargs):
+        fold = kwargs.get('n_splits', 10)
+
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
+        for fold in range(fold):
             dtreeClf = DecisionTreeClassifier(
                 criterion=kwargs.get('criterion', 'gini'),
                 splitter=kwargs.get('splitter', 'best'),
@@ -214,10 +222,12 @@ class Classifier:
         return predict_proba
 
     def extra_trees(self, **kwargs):
+        fold = kwargs.get('n_splits', 10)
+
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
+        for fold in range(fold):
             extraTreeClf = ExtraTreesClassifier(
                 n_estimators=kwargs.get('n_estimators', 100),
                 criterion=kwargs.get('criterion', 'gini'),
@@ -248,10 +258,12 @@ class Classifier:
         return predict_proba
 
     def svm(self, **kwargs):
+        fold = kwargs.get('n_splits', 10)
+
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
+        for fold in range(fold):
             svmClf = SVC(
                 C=kwargs.get('C', 1.0),
                 kernel=kwargs.get('kernel', 'rbf'),
@@ -278,10 +290,12 @@ class Classifier:
         return predict_proba
 
     def xgb(self, **kwargs):
+        fold = kwargs.get('n_splits', 10)
+
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
+        for fold in range(fold):
             xgbClf = XGBClassifier(
                 max_depth=kwargs.get('max_depth', 3),
                 learning_rate=kwargs.get('learning_rate', 0.1),
@@ -312,3 +326,27 @@ class Classifier:
         self.time['xgb'] = end_time - start_time
 
         return predict_proba
+
+    def f1_score(self):
+        pm = PerformanceMetrics(self)
+        return pm.f1_score()
+
+    def accuracy_score(self):
+        pm = PerformanceMetrics(self)
+        return pm.accuracy_score()
+
+    def roc_auc(self):
+        pm = PerformanceMetrics(self)
+        return pm.roc_auc()
+
+    def matthews_corrcoef(self):
+        pm = PerformanceMetrics(self)
+        return pm.matthews_corrcoef()
+
+    def confusion_matrix(self):
+        pm = PerformanceMetrics(self)
+        return pm.confusion_matrix()
+
+    def all_metrics(self):
+        pm = PerformanceMetrics(self)
+        return pm.all_metrics()

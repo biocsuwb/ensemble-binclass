@@ -3,16 +3,14 @@ import seaborn as sns
 import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score, roc_auc_score, f1_score, matthews_corrcoef
 
-from src.classifier import Classifier
-
 
 class PerformanceMetrics:
-    def __init__(self, classifier: Classifier):
+    def __init__(self, classifier):
         self.y_test = list(classifier.y_test)
         self.y_pred = classifier.predictions
         self.classifiers = (self.y_pred.keys())
         self.time = classifier.time
-        self.fold = classifier.fold
+        self.fold = classifier.cv_params['n_splits']
         self.fs = classifier.fs
 
         self.check_for_none()
