@@ -88,10 +88,124 @@ data_RNA.load_data()
 - classifier parameter: ***kernel = ***{‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’}***;
 ## Example 2 - Construct the predictive model with molecular data by using stacking ensemble learning
 ```r
+ens = ens.Ensemble(
+    X,
+    y,
+    features=[
+        relieff_features.features,
+        lasso_features.features,
+    ],
+    classifiers=[
+        'adaboost',
+        'random_forest',
+        'svm',
+    ],
+    classifier_params=[
+        {'adaboost': {
+            'n_estimators': 100, 'learning_rate': 0.9,
+            }
+        },
+        {'random_forest': {
+            'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,
+            }
+        },
+        {'svm': {
+            'C': 1, 'kernel': 'linear', 'gamma': 'auto'
+            }
+        },
+    ],  
+    cv='stratified_k_fold',
+    cv_params={'n_splits': 10},
+    ensemble=[
+        'stacking',
+    ],
+    ensemble_params=[
+        {'stacking': {
+            'final_estimator': None,
+            }
+        },
+    ],
+)
 ```
-## Example 3 - Construct the predictive model with molecular data by using boosting ensemble learning
+## Example 3 - Construct the predictive model with molecular data by using voting ensemble learning
 ```r
+ens = ens.Ensemble(
+    X,
+    y,
+    features=[
+        relieff_features.features,
+        lasso_features.features,
+    ],
+    classifiers=[
+        'adaboost',
+        'random_forest',
+        'svm',
+    ],
+    classifier_params=[
+        {'adaboost': {
+            'n_estimators': 100, 'learning_rate': 0.9,
+            }
+        },
+        {'random_forest': {
+            'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,
+            }
+        },
+        {'svm': {
+            'C': 1, 'kernel': 'linear', 'gamma': 'auto'
+            }
+        },
+    ],  
+    cv='stratified_k_fold',
+    cv_params={'n_splits': 10},
+    ensemble=[
+        'voting',
+    ],
+    ensemble_params=[
+        {'voting': {
+            'voting': 'soft'
+            }
+        },
+    ],
+)
 ```
 ## Example 4 - Construct the predictive model with molecular data by using bagging ensemble learning
 ```r
+ens = ens.Ensemble(
+    X,
+    y,
+    features=[
+        relieff_features.features,
+        lasso_features.features,
+    ],
+    classifiers=[
+        'adaboost',
+        'random_forest',
+        'svm',
+    ],
+    classifier_params=[
+        {'adaboost': {
+            'n_estimators': 100, 'learning_rate': 0.9,
+            }
+        },
+        {'random_forest': {
+            'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,
+            }
+        },
+        {'svm': {
+            'C': 1, 'kernel': 'linear', 'gamma': 'auto'
+            }
+        },
+    ],  
+    cv='stratified_k_fold',
+    cv_params={'n_splits': 10},
+    ensemble=[
+        'bagging',
+    ],
+    ensemble_params=[
+        {'bagging': {
+            'estimator_name': 'random_forest', 'n_estimators': 100, 'max_samples': 0.5, 'max_features': 0.5
+            }
+        },
+    ],
+)
 ```
