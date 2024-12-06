@@ -7,39 +7,49 @@ from scipy.stats import mannwhitneyu
 
 
 class FeatureSelection:
-    def __init__(self, X: pd.DataFrame, y: pd.Series, method: str, size: int, **kwargs):
+    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str, size: int, params: dict = None):
         self.X = X
         self.y = y
-        self.method = method
+        self.method = method_
         self.size = size
         self.features = None
+        self.params = params
 
         match self.method:
             case 'lasso':
-                self.lasso(**kwargs)
+                self.lasso(**params)
             case 'relieff':
-                self.relieff(**kwargs)
+                self.relieff(**params)
             case 'mrmr':
-                self.mrmr()
+                self.mrmr(**params)
             case 'uTest':
-                self.u_test()
+                self.u_test(**params)
             case _:
                 raise ValueError('Unknown method')
 
     def lasso(self, **kwargs):
-        alpha = kwargs.get('alpha', 0.00001)
-        max_iter = kwargs.get('max_iter', 10000)
-        lasso = Lasso(alpha=alpha, max_iter=max_iter)
+
+        lasso = Lasso(
+            alpha=kwargs.get('alpha', 0.00001),
+            fit_intercept=kwargs.get('fit_intercept', True),
+            precompute=kwargs.get('precompute', False),
+            max_iter=kwargs.get('max_iter', 10000),
+            tol=kwargs.get('tol', 0.0001),
+            selection=kwargs.get('selection', 'cyclic'),
+            random_state=kwargs.get('random_state', 42),
+        )
         lasso.fit(self.X, self.y)
         self.features = pd.Series(data=list(np.array(self.X.columns)[:self.size]), name="Lasso")
         return self.features
 
     def relieff(self, **kwargs):
-        n_features_to_keep = kwargs.get('n_features_to_keep', self.size)
         X_array = self.X.values
         y_array = self.y.values
 
-        fs = ReliefF(n_neighbors=100, n_features_to_keep=n_features_to_keep)
+        fs = ReliefF(
+            n_neighbors=kwargs.get('n_neighbors', 100),
+            n_features_to_keep=kwargs.get('n_features_to_keep', self.size),
+        )
         fs.fit(X_array, y_array)
 
         feature_scores = fs.feature_scores
@@ -47,14 +57,26 @@ class FeatureSelection:
         top_k_features = feature_scores_df.sort_values(by='Score', ascending=False).head(self.size)
         relieff_features = top_k_features['Feature'].tolist()
         self.features = pd.Series(data=relieff_features, name="ReliefF")
-        return relieff_features
+        return self.features
 
-    def mrmr(self):
-        mrmr_features = mrmr_classif(self.X, self.y, K=self.size)
+    def mrmr(self, **kwargs):
+        mrmr_features = mrmr_classif(
+            self.X,
+            self.y,
+            K=self.size,
+            relevance=kwargs.get('relevance', 'f'),
+            redundancy=kwargs.get('redundancy', 'c'),
+            denominator=kwargs.get('denominator', 'mean'),
+            cat_features=kwargs.get('cat_features', None),
+            only_same_domain=kwargs.get('only_same_domain', False),
+            return_scores=kwargs.get('return_scores', False),
+            n_jobs=kwargs.get('n_jobs', -1),
+            show_progress=kwargs.get('show_progress', True),
+        )
         self.features = pd.Series(data=mrmr_features, name="Mrmr")
-        return mrmr_features
+        return self.features
 
-    def u_test(self):
+    def u_test(self, **kwargs):
         data_class1 = self.y
         data_class2 = self.X
 
@@ -63,7 +85,14 @@ class FeatureSelection:
         p_value_df = pd.DataFrame(index=self.X.columns[:-1], columns=['p_value'])
 
         def do_utest(i):
-            stat, p_value = mannwhitneyu(data_class1, data_class2.iloc[:, i])
+            stat, p_value = mannwhitneyu(
+                data_class1,
+                data_class2.iloc[:, i],
+                use_continuity=kwargs.get('use_continuity', True),
+                alternative=kwargs.get('alternative', 'two-sided'),
+                axis=kwargs.get('axis', 0),
+                method=kwargs.get('method', 'auto'),
+            )
             p_value_df.loc[self.X.columns[i - 1], 'p_value'] = p_value
 
         n_features = data_class2.shape[1]
@@ -75,12 +104,9 @@ class FeatureSelection:
         utest_features = sorted_p_value_df.loc[sorted_p_value_df['p_value'] < alpha]
         utest_features = utest_features.index.tolist()[:self.size]
         self.features = pd.Series(data=utest_features, name="U-test")
-        return utest_features
+        return self.features
 
     def show_features(self, size: int = 10):
         if size > self.size:
             raise ValueError("size is larger than the list of features")
         print(self.features[:size])
-
-    def get_features(self):
-        return self.features
