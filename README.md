@@ -1,13 +1,16 @@
 # The ensemble-binclass: an Python package for a feature selection and ensemble classification of molecular omic data
 ## Description
-ensemble-binclass is an python package for single feature selection (FS) and ensemble classification of omic data (numeric data formats).
-This tool is based on several feature filters, such as ... and classifiers ..... for discovering the most important biomarkers and using machine learning algorithms (ML) to evaluate the quality of feature sets. 
-Predictive models are built using the Random Forest algorithm ([Breiman 2001](https://link.springer.com/article/10.1023/A:1010933404324)). It can be applied to two-class problems.
+ensemble-binclass is an python package for feature selection (FS) and ensemble classification of omic data (numeric data formats).
+This tool is based on four feature filters (U-test, the Minimum Redundancy Maximum Relevance (MRMR) 
+([Ding 2005](https://pubmed.ncbi.nlm.nih.gov/15852500/), Relief ([Kira 1992](https://dl.acm.org/doi/abs/10.5555/1867135.1867155)), LASSO ([Tibshirani 1996](https://www.jstor.org/stable/2346178))) and eight binary classifiers (
+(Adaboost, gradient boosting, random forest [Breiman 2001](https://link.springer.com/article/10.1023/A:1010933404324), k-nearest neighbor (k-NN), decision tree, extra trees, support vector machine and extreme gradient boost (XGBoost))
+and using machine learning algorithms (ML) to evaluate the quality of feature sets. 
+It can be applied to two-class problems.
 
 **Ensemble-binclass is a Python package that allows the user to:**
-* filter the most informative features by using up to four FS methods (U-test, MRMR, Relief, LASSO) from numeric omics data generated from high-throughput molecular biology experiments;
+* filter the most informative features by using up to four FS methods from numeric omics data generated from high-throughput molecular biology experiments;
 * remove redundant features by building the Spearman correlation matrix that identifies highly correlated features;
-* perform binary classification by using eight classifiers (Adaboost, gradient boosting, random forest, k-nearest neighbor (k-NN), decision tree, extra trees, support vector machine (SVM) i extreme gradient boost (XGBoost)):
+* perform binary classification by using one of the eight classifiers:
 * build predictive model using one of ensemble learning, namely, stacking, boosting, and bagging (see Figure 1);
 * evaluate predictive model by using several metrics (the area under receiver operator curve  (AUC), accuracy (ACC), and the Matthews correlation coefficient(MCC), F1, ....);
 * compare the predictive performance of models and the stability of selected feature sets for selected FS algorithms, individual classifiers, and combined classifiers;  
