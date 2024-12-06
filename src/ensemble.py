@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import src.modelEvaluation as modelEvaluation
+from src.performanceMetrics import PerformanceMetrics
 from sklearn.ensemble import VotingClassifier, BaggingClassifier, StackingClassifier, AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier, \
     RandomForestClassifier
 from sklearn.svm import SVC
@@ -10,8 +11,9 @@ from xgboost import XGBClassifier
 
 
 class Ensemble:
-    def __init__(self, X: pd.DataFrame = None, y: pd.Series = None, features: pd.Series = None, ensemble: list = None,
-                 classifiers: list = None, cross_validation: str = 'hold_out', fold: int = 1, **kwargs):
+    def __init__(self, X: pd.DataFrame = None, y: pd.Series = None, features: pd.Series = None,
+                 classifiers: list = None, classifier_params: list = None, cv: str = 'hold_out',
+                 cv_params: dict = None, ensemble: list = None, ensemble_params: list = None):
         self.X = X[features] if features is not None else X
         self.fs = features.name
         self.y = y
@@ -19,80 +21,90 @@ class Ensemble:
         self.X_test = None
         self.y_train = None
         self.y_test = None
-        self.ensemble = ensemble
-        self.cross_validation = cross_validation
         self.classifiers = classifiers
-        self.model_classifiers = []
+        self.classifier_params = classifier_params
+        self.model_classifiers = {}
+        self.cross_validation = cv
+        self.cv_params = cv_params
+        self.ensemble = ensemble
+        self.ensemble_params = ensemble_params
         self.predictions = {}
-        self.fold = fold
         self.time = {}
+        self.n_splits = cv_params.get('n_splits', 10)
 
         me = modelEvaluation.ModelEvaluation(self.X, self.y)
 
         match self.cross_validation:
             case 'hold_out':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.hold_out(0.3)
+                self.X_train, self.X_test, self.y_train, self.y_test = me.hold_out(**self.cv_params)
             case 'k_fold':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.k_fold(self.fold)
+                self.X_train, self.X_test, self.y_train, self.y_test = me.k_fold(**self.cv_params)
             case 'stratified_k_fold':
-                self.X_train, self.X_test, self.y_train, self.y_test = me.stratified_k_fold(self.fold)
+                self.X_train, self.X_test, self.y_train, self.y_test = me.stratified_k_fold(**self.cv_params)
             case 'leave_one_out':
                 self.X_train, self.X_test, self.y_train, self.y_test = me.leave_one_out()
             case _:
                 raise ValueError('Invalid cross_validation')
 
-        for classifier in self.classifiers:
+        for classifier, params in zip(self.classifiers, self.classifier_params):
             match classifier:
                 case 'adaboost':
-                    self.model_classifiers.append(('adaboost', AdaBoostClassifier(algorithm='SAMME')))
+                    self.model_classifiers['adaboost'] = AdaBoostClassifier(**params['adaboost'])
                 case 'gradient_boosting':
-                    self.model_classifiers.append(('gradient boosting', GradientBoostingClassifier()))
+                    self.model_classifiers['gradient_boosting'] = GradientBoostingClassifier(**params['gradient_boosting'])
                 case 'random_forest':
-                    self.model_classifiers.append(('random forest', RandomForestClassifier()))
+                    self.model_classifiers['random_forest'] = RandomForestClassifier(**params['random_forest'])
                 case 'k_neighbors':
-                    self.model_classifiers.append(('k_nearest neighbors', KNeighborsClassifier()))
+                    self.model_classifiers['k_neighbors'] = KNeighborsClassifier(**params['k_neighbors'])
                 case 'decision_tree':
-                    self.model_classifiers.append(('decision tree', DecisionTreeClassifier()))
+                    self.model_classifiers['decision_tree'] = DecisionTreeClassifier(**params['decision_tree'])
                 case 'extra_trees':
-                    self.model_classifiers.append(('extra trees', ExtraTreesClassifier()))
+                    self.model_classifiers['extra_trees'] = ExtraTreesClassifier(**params['extra_trees'])
                 case 'svm':
-                    self.model_classifiers.append(('svm', SVC()))
+                    params['svm']['probability'] = True
+                    self.model_classifiers['svm'] = SVC(**params['svm'])
                 case 'xgb':
-                    self.model_classifiers.append(('xgb', XGBClassifier()))
+                    self.model_classifiers['xgb'] = XGBClassifier(**params['xgb'])
                 case 'all':
-                    self.model_classifiers = [('adaboost', AdaBoostClassifier(algorithm='SAMME')),
-                                              ('gradient_boosting', GradientBoostingClassifier()),
-                                              ('random_forest', RandomForestClassifier()),
-                                              ('k_neighbors', KNeighborsClassifier()),
-                                              ('decision_tree', DecisionTreeClassifier()),
-                                              ('extra_trees', ExtraTreesClassifier()),
-                                              ('svm', SVC(kernel='linear')),
-                                              ('xgb', XGBClassifier())]
+                    self.model_classifiers['adaboost'] = AdaBoostClassifier(**params['adaboost'])
+                    self.model_classifiers['gradient_boosting'] = GradientBoostingClassifier(**params['gradient_boosting'])
+                    self.model_classifiers['random_forest'] = RandomForestClassifier(**params['random_forest'])
+                    self.model_classifiers['k_neighbors'] = KNeighborsClassifier(**params['k_neighbors'])
+                    self.model_classifiers['decision_tree'] = DecisionTreeClassifier(**params['decision_tree'])
+                    self.model_classifiers['extra_trees'] = ExtraTreesClassifier(**params['extra_trees'])
+                    self.model_classifiers['svm'] = SVC(**params['svm'])
+                    self.model_classifiers['xgb'] = XGBClassifier(**params['xgb'])
                 case _:
                     raise ValueError('Invalid classifier name')
 
-        for ens in self.ensemble:
-            match ens:
+        for ensemble, params in zip(self.ensemble, self.ensemble_params):
+            match ensemble:
                 case 'voting':
-                    self.predictions['voting'] = self.voting(**kwargs)
+                    self.predictions['voting'] = self.voting(**params['voting'])
                 case 'bagging':
-                    self.predictions['bagging'] = self.bagging()
+                    self.predictions['bagging'] = self.bagging(**params['bagging'])
                 case 'stacking':
-                    self.predictions['stacking'] = self.stacking()
+                    self.predictions['stacking'] = self.stacking(**params['stacking'])
                 case 'all':
-                    self.predictions['voting'] = self.voting(**kwargs)
-                    self.predictions['bagging'] = self.bagging()
-                    self.predictions['stacking'] = self.stacking()
+                    self.predictions['voting'] = self.voting(**params['voting'])
+                    self.predictions['bagging'] = self.bagging(**params['bagging'])
+                    self.predictions['stacking'] = self.stacking(**params['stacking'])
 
     def voting(self, **kwargs):
+        estimators = [(name, clf) for name, clf in self.model_classifiers.items()]
+
         start_time = time.time()
 
         predict_proba = []
-        voting = kwargs.get('voting', 'hard')
-        if voting not in ('soft', 'hard'):
-            raise Exception('Voting should be soft or hard')
-        for fold in range(self.fold):
-            Voting = VotingClassifier(estimators=self.model_classifiers, voting=voting)
+        for fold in range(self.n_splits):
+            Voting = VotingClassifier(
+                estimators=estimators,
+                voting=kwargs.get('voting', 'hard'),
+                weights=kwargs.get('weights', None),
+                n_jobs=kwargs.get('n_jobs', None),
+                flatten_transform=kwargs.get('flatten_transform', True),
+                verbose=kwargs.get('verbose', False),
+            )
             Voting.fit(self.X_train[fold], self.y_train[fold])
             predict_proba.append(Voting.predict(self.X_test[fold]))
 
@@ -102,12 +114,26 @@ class Ensemble:
 
         return predict_proba
 
-    def bagging(self):
+    def bagging(self, **kwargs):
+        estimator = self.model_classifiers.get(kwargs.get('estimator_name'), None)
+    
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
-            bagging = BaggingClassifier(estimator=self.model_classifiers[0][1])
+        for fold in range(self.n_splits):
+            bagging = BaggingClassifier(
+                estimator=estimator,
+                n_estimators=kwargs.get('n_estimators', 10),
+                max_samples=kwargs.get('max_samples', 1.0),
+                max_features=kwargs.get('max_features', 1.0),
+                bootstrap=kwargs.get('bootstrap', True),
+                bootstrap_features=kwargs.get('bootstrap_features', False),
+                oob_score=kwargs.get('oob_score', False),
+                warm_start=kwargs.get('warm_start', False),
+                n_jobs=kwargs.get('n_jobs', None),
+                random_state=kwargs.get('random_state', None),
+                verbose=kwargs.get('verbose', 0),
+            )
             bagging.fit(self.X_train[fold], self.y_train[fold])
             predict_proba.append(bagging.predict(self.X_test[fold]))
 
@@ -117,12 +143,22 @@ class Ensemble:
 
         return predict_proba
 
-    def stacking(self, final_estimator=None):
+    def stacking(self, **kwargs):
+        estimators = [(name, clf) for name, clf in self.model_classifiers.items()]
+
         start_time = time.time()
 
         predict_proba = []
-        for fold in range(self.fold):
-            stacking = StackingClassifier(estimators=self.model_classifiers, final_estimator=final_estimator)
+        for fold in range(self.n_splits):
+            stacking = StackingClassifier(
+                estimators=estimators,
+                final_estimator=kwargs.get('final_estimator', None),
+                cv=kwargs.get('cv', None),
+                stack_method=kwargs.get('stack_method', 'auto'),
+                n_jobs=kwargs.get('n_jobs', None),
+                passthrough=kwargs.get('passthrough', False),
+                verbose=kwargs.get('verbose', 0),
+            )
             stacking.fit(self.X_train[fold], self.y_train[fold])
             predict_proba.append(stacking.predict(self.X_test[fold]))
 
@@ -131,3 +167,27 @@ class Ensemble:
         self.time['stacking'] = end_time - start_time
 
         return predict_proba
+
+    def f1_score(self):
+        pm = PerformanceMetrics(self)
+        return pm.f1_score()
+
+    def accuracy_score(self):
+        pm = PerformanceMetrics(self)
+        return pm.accuracy_score()
+
+    def roc_auc(self):
+        pm = PerformanceMetrics(self)
+        return pm.roc_auc()
+
+    def matthews_corrcoef(self):
+        pm = PerformanceMetrics(self)
+        return pm.matthews_corrcoef()
+
+    def confusion_matrix(self):
+        pm = PerformanceMetrics(self)
+        return pm.confusion_matrix()
+
+    def all_metrics(self):
+        pm = PerformanceMetrics(self)
+        return pm.all_metrics()
