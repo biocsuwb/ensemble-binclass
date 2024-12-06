@@ -3,8 +3,8 @@
 ensemble-binclass is an python package for feature selection (FS) and ensemble classification of omic data (numeric data formats).
 This tool is based on **four feature filters** (U-test, the Minimum Redundancy Maximum Relevance (MRMR) 
 ([Ding 2005](https://pubmed.ncbi.nlm.nih.gov/15852500/), Relief ([Kira 1992](https://dl.acm.org/doi/abs/10.5555/1867135.1867155)), LASSO ([Tibshirani 1996](https://www.jstor.org/stable/2346178))) and **eight binary classifiers** (
-(Adaboost, gradient boosting, random forest [Breiman 2001](https://link.springer.com/article/10.1023/A:1010933404324), k-nearest neighbor (k-NN), decision tree, extra trees, support vector machine and extreme gradient boost (XGBoost))
-and using machine learning algorithms (ML) to evaluate the quality of feature sets. 
+(Adaboost, gradient boosting, random forest [Breiman 2001](https://link.springer.com/article/10.1023/A:1010933404324), k-nearest neighbor (k-NN), decision tree, extra trees, support vector machine (SVM) and extreme gradient boost (XGBoost)).
+The ensemble-binclass uses the machine learning algorithms (ML) to evaluate the quality of feature sets (k-fold stratified crossvalidation or resampling). 
 It can be applied to two-class problems.
 
 **Ensemble-binclass is a Python package that allows the user to:**
