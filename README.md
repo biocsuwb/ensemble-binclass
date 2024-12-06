@@ -87,8 +87,8 @@ data_RNA.load_data()
 - classifier: SVM;
 - classifier parameter: ***kernel = ***{‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’}***;
 ## Example 2 - Construct the predictive model with molecular data by using stacking ensemble learning
-```r
-ens = ens.Ensemble(
+```python
+ens_stacking = ens.Ensemble(
     X,
     y,
     features=[
@@ -127,9 +127,16 @@ ens = ens.Ensemble(
     ],
 )
 ```
+
+```console
+["ACC: {'stacking_ReliefF': [0.988, 0.02], 'stacking_Lasso': [0.995, 0.011]}",
+ "Roc Auc: {'stacking_ReliefF': [0.964, 0.099], 'stacking_Lasso': [0.982, 0.05]}",
+ "F1 score: {'stacking_ReliefF': [0.993, 0.011], 'stacking_Lasso': [0.997, 0.006]}",
+ "MCC: {'stacking_ReliefF': [0.929, 0.13], 'stacking_Lasso': [0.972, 0.062]}"]
+```
 ## Example 3 - Construct the predictive model with molecular data by using voting ensemble learning
-```r
-ens = ens.Ensemble(
+```python
+ens_voting = ens.Ensemble(
     X,
     y,
     features=[
@@ -168,9 +175,16 @@ ens = ens.Ensemble(
     ],
 )
 ```
+
+```console
+["ACC: {'voting_ReliefF': [0.993, 0.009], 'voting_Lasso': [0.993, 0.016]}",
+ "Roc Auc: {'voting_ReliefF': [0.989, 0.024], 'voting_Lasso': [0.981, 0.053]}",
+ "F1 score: {'voting_ReliefF': [0.996, 0.005], 'voting_Lasso': [0.996, 0.009]}",
+ "MCC: {'voting_ReliefF': [0.964, 0.044], 'voting_Lasso': [0.962, 0.09]}"]
+```
 ## Example 4 - Construct the predictive model with molecular data by using bagging ensemble learning
-```r
-ens = ens.Ensemble(
+```python
+ens_bagging = ens.Ensemble(
     X,
     y,
     features=[
@@ -208,4 +222,11 @@ ens = ens.Ensemble(
         },
     ],
 )
+```
+
+```console
+["ACC: {'bagging_ReliefF': [0.99, 0.016], 'bagging_Lasso': [0.988, 0.02]}",
+ "Roc Auc: {'bagging_ReliefF': [0.965, 0.076], 'bagging_Lasso': [0.964, 0.078]}",
+ "F1 score: {'bagging_ReliefF': [0.994, 0.009], 'bagging_Lasso': [0.993, 0.011]}",
+ "MCC: {'bagging_ReliefF': [0.941, 0.094], 'bagging_Lasso': [0.932, 0.124]}"]
 ```
