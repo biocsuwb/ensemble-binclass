@@ -81,6 +81,26 @@ data_RNA = dp.OmicDataPreprocessing(path='correctData/df.RNA.merge.image.LGG.csv
 data_RNA.load_data()
 ```
 ### Prepare omic data for machine learning
+
+
+### Feature selection using the LASSO method
+
+#### (Optional) LASSO configuration parameters 
+- ***params = {'alpha': 0.1,
+        'fit_intercept': True,
+        'precompute': False,
+        'max_iter': 10000,
+        'tol': 0.0001,
+        'selection': 'cyclic',
+        'random_state': 42,}***;
+- U-test parameter, significance level: ***alpha = 0.05***;
+- validation methods: ***method.cv = {'kfoldcv','rsampling'}***;
+- number of repetitions: ***niter = 10***;
+- train-test-split the data: ***k = 3*** for stratified k-fold cross-validation and ***test.size = 0.3*** for random sampling;
+- classifier: SVM;
+- classifier parameter: ***kernel = ***{‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’}***;
+
+#### Run LASSO 
 ```python
 lasso_features = fs.FeatureSelection(
     X, 
@@ -98,14 +118,7 @@ lasso_features = fs.FeatureSelection(
     },
 )
 ```
-#### Model (optional) configuration parameters
-- U-test parameter, multitest correction:  ***adjust = {"holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"}***;
-- U-test parameter, significance level: ***alpha = 0.05***;
-- validation methods: ***method.cv = {'kfoldcv','rsampling'}***;
-- number of repetitions: ***niter = 10***;
-- train-test-split the data: ***k = 3*** for stratified k-fold cross-validation and ***test.size = 0.3*** for random sampling;
-- classifier: SVM;
-- classifier parameter: ***kernel = ***{‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’}***;
+ 
 ## Example 2 - Construct the predictive model with molecular data by using stacking ensemble learning
 ```python
 ens_stacking = ens.Ensemble(
