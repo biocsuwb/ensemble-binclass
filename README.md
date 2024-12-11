@@ -28,7 +28,12 @@ Fig.1 The ensemble learning strategy in ensemble-binclass.
     <img src="https://github.com/biocsuwb/Images/blob/main/WorkflowEnsembleBin.jpg?raw=true" alt="Fig.3 Flowchart of ensemble learning. " width="500">
 </p>
 
+## The package consists of the following components:
+
+
 ## Install package
+It requires .... and .... packages.
+
 ### Install the development version from GitHub:
 To install this package, clone the repository and install with pip:
 ```r
