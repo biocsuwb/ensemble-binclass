@@ -192,3 +192,23 @@ class Ensemble:
     def all_metrics(self):
         pm = PerformanceMetrics(self)
         return pm.all_metrics()
+
+    def plot_acc(self):
+        pm = PerformanceMetrics(self)
+        pm.plot_acc()
+
+    def plot_roc_auc(self):
+        pm = PerformanceMetrics(self)
+        pm.plot_roc_auc()
+
+    def plot_f1_score(self):
+        pm = PerformanceMetrics(self)
+        pm.plot_f1_score()
+
+    def plot_mcc(self):
+        pm = PerformanceMetrics(self)
+        pm.plot_mcc()
+
+    def plot_all(self):
+        pm = PerformanceMetrics(self)
+        pm.plot_all()

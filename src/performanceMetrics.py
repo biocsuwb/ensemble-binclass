@@ -78,7 +78,7 @@ class PerformanceMetrics:
         sd_dict = {classifier: round(np.std(values), 3) for classifier, values in roc_auc_dict.items()}
         combined_dict = {classifier: [mean_dict[classifier], sd_dict.get(classifier)] for classifier in mean_dict}
 
-        return "Roc Auc: " + str(combined_dict)
+        return "Roc Auc: " + str(combined_dict), roc_auc_dict
 
     def f1_score(self):
         f1_score_dict = {}
@@ -96,7 +96,7 @@ class PerformanceMetrics:
         sd_dict = {classifier: round(np.std(values), 3) for classifier, values in f1_score_dict.items()}
         combined_dict = {classifier: [mean_dict[classifier], sd_dict.get(classifier)] for classifier in mean_dict}
 
-        return "F1 score: " + str(combined_dict)
+        return "F1 score: " + str(combined_dict), f1_score_dict
 
     def matthews_corrcoef(self):
         matthews_corrcoef_dict = {}
@@ -114,16 +114,55 @@ class PerformanceMetrics:
         sd_dict = {classifier: round(np.std(values), 3) for classifier, values in matthews_corrcoef_dict.items()}
         combined_dict = {classifier: [mean_dict[classifier], sd_dict.get(classifier)] for classifier in mean_dict}
 
-        return "MCC: " + str(combined_dict)
+        return "MCC: " + str(combined_dict), matthews_corrcoef_dict
 
-    def plot_classifier_acc(self):
+    def plot_acc(self):
         scores_dict = self.accuracy_score()[1]
 
         plt.figure(figsize=(10, 6))
         sns.boxplot(data=list(scores_dict.values()), palette='hls')
         plt.xticks(ticks=range(len(scores_dict)), labels=list(scores_dict.keys()), rotation=90)
         plt.ylabel('Accuracy score')
-        plt.title(f'Box plot of classifiers accuracy, FS: {self.fs}')
+        plt.title(f'Box plot of classifiers accuracy')
+        plt.grid(True)
+        sns.set_theme()
+
+        plt.show()
+
+    def plot_roc_auc(self):
+        scores_dict = self.roc_auc()[1]
+
+        plt.figure(figsize=(10, 6))
+        sns.boxplot(data=list(scores_dict.values()), palette='hls')
+        plt.xticks(ticks=range(len(scores_dict)), labels=list(scores_dict.keys()), rotation=90)
+        plt.ylabel('ROC AUC score')
+        plt.title(f'Box plot of classifiers ROC AUC')
+        plt.grid(True)
+        sns.set_theme()
+
+        plt.show()
+
+    def plot_f1_score(self):
+        scores_dict = self.f1_score()[1]
+
+        plt.figure(figsize=(10, 6))
+        sns.boxplot(data=list(scores_dict.values()), palette='hls')
+        plt.xticks(ticks=range(len(scores_dict)), labels=list(scores_dict.keys()), rotation=90)
+        plt.ylabel('F1 score')
+        plt.title(f'Box plot of classifiers F1 score')
+        plt.grid(True)
+        sns.set_theme()
+
+        plt.show()
+
+    def plot_mcc(self):
+        scores_dict = self.matthews_corrcoef()[1]
+
+        plt.figure(figsize=(10, 6))
+        sns.boxplot(data=list(scores_dict.values()), palette='hls')
+        plt.xticks(ticks=range(len(scores_dict)), labels=list(scores_dict.keys()), rotation=90)
+        plt.ylabel('Matthews Correlation Coefficient')
+        plt.title(f'Box plot of classifiers MCC')
         plt.grid(True)
         sns.set_theme()
 
@@ -159,7 +198,13 @@ class PerformanceMetrics:
     def all_metrics(self):
         return [
             self.accuracy_score()[0],
-            self.roc_auc(),
-            self.f1_score(),
-            self.matthews_corrcoef()
+            self.roc_auc()[0],
+            self.f1_score()[0],
+            self.matthews_corrcoef()[0]
         ]
+
+    def plot_all(self):
+        self.plot_acc(),
+        self.plot_roc_auc(),
+        self.plot_f1_score(),
+        self.plot_mcc()
