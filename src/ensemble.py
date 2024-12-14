@@ -86,15 +86,15 @@ class Ensemble:
             for ensemble, params in zip(self.ensemble, self.ensemble_params):
                 match ensemble:
                     case 'voting':
-                        self.predictions[f'voting_{feature_set.name}'] = self.voting(**params['voting'])
+                        self.predictions[f'{feature_set.name}_VOTING'] = self.voting(**params['voting'])
                     case 'bagging':
-                        self.predictions[f'bagging_{feature_set.name}'] = self.bagging(**params['bagging'])
+                        self.predictions[f'{feature_set.name}_BAGGING'] = self.bagging(**params['bagging'])
                     case 'stacking':
-                        self.predictions[f'stacking_{feature_set.name}'] = self.stacking(**params['stacking'])
+                        self.predictions[f'{feature_set.name}_STACKING'] = self.stacking(**params['stacking'])
                     case 'all':
-                        self.predictions[f'voting_{feature_set.name}'] = self.voting(**params['voting'])
-                        self.predictions[f'bagging_{feature_set.name}'] = self.bagging(**params['bagging'])
-                        self.predictions[f'stacking_{feature_set.name}'] = self.stacking(**params['stacking'])
+                        self.predictions[f'{feature_set.name}_VOTING'] = self.voting(**params['voting'])
+                        self.predictions[f'{feature_set.name}_BAGGING'] = self.bagging(**params['bagging'])
+                        self.predictions[f'{feature_set.name}_STACKING'] = self.stacking(**params['stacking'])
 
     def voting(self, **kwargs):
         estimators = [(name, clf) for name, clf in self.model_classifiers.items()]
