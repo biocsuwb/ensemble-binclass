@@ -86,7 +86,7 @@ class Classifier:
                 n_estimators=kwargs.get('n_estimators', 50),
                 learning_rate=kwargs.get('learning_rate', 1.0),
                 algorithm=kwargs.get('algorithm', 'SAMME'),
-                random_state=kwargs.get('random_state', 42),
+                random_state=kwargs.get('random_state', None),
             )
             adaboostClf_f = adaboostClf.fit(self.X_train[fold], self.y_train[fold])
             predict_proba.append(adaboostClf_f.predict(self.X_test[fold]))
@@ -115,7 +115,7 @@ class Classifier:
                 max_depth=kwargs.get('max_depth', 3),
                 min_impurity_decrease=kwargs.get('min_impurity_decrease', 0.0),
                 init=kwargs.get('init', None),
-                random_state=kwargs.get('random_state', 42),
+                random_state=kwargs.get('random_state', None),
                 max_features=kwargs.get('max_features', None),
                 verbose=kwargs.get('verbose', 0),
                 max_leaf_nodes=kwargs.get('max_leaf_nodes', None),
@@ -153,7 +153,7 @@ class Classifier:
                 bootstrap=kwargs.get('bootstrap', True),
                 oob_score=kwargs.get('oob_score', False),
                 n_jobs=kwargs.get('n_jobs', None),
-                random_state=kwargs.get('random_state', 42),
+                random_state=kwargs.get('random_state', None),
                 verbose=kwargs.get('verbose', 0),
                 warm_start=kwargs.get('warm_start', False),
                 class_weight=kwargs.get('class_weight', None),
@@ -209,7 +209,7 @@ class Classifier:
                 min_samples_leaf=kwargs.get('min_samples_leaf', 1),
                 min_weight_fraction_leaf=kwargs.get('min_weight_fraction_leaf', 0.0),
                 max_features=kwargs.get('max_features', None),
-                random_state=kwargs.get('random_state', 42),
+                random_state=kwargs.get('random_state', None),
                 max_leaf_nodes=kwargs.get('max_leaf_nodes', None),
                 min_impurity_decrease=kwargs.get('min_impurity_decrease', 0.0),
                 class_weight=kwargs.get('class_weight', None),
@@ -244,7 +244,7 @@ class Classifier:
                 bootstrap=kwargs.get('bootstrap', False),
                 oob_score=kwargs.get('oob_score', False),
                 n_jobs=kwargs.get('n_jobs', None),
-                random_state=kwargs.get('random_state', 42),
+                random_state=kwargs.get('random_state', None),
                 verbose=kwargs.get('verbose', 0),
                 warm_start=kwargs.get('warm_start', False),
                 class_weight=kwargs.get('class_weight', None),
@@ -282,7 +282,7 @@ class Classifier:
                 max_iter=kwargs.get('max_iter', -1),
                 decision_function_shape=kwargs.get('decision_function_shape', 'ovr'),
                 break_ties=kwargs.get('break_ties', False),
-                random_state=kwargs.get('random_state', 42),
+                random_state=kwargs.get('random_state', None),
             )
             svmClf_f = svmClf.fit(self.X_train[fold], self.y_train[fold])
             predict_proba.append(svmClf_f.predict(self.X_test[fold]))
@@ -318,7 +318,7 @@ class Classifier:
                 reg_lambda=kwargs.get('reg_lambda', 1),
                 scale_pos_weight=kwargs.get('scale_pos_weight', 1),
                 base_score=kwargs.get('base_score', 0.5),
-                random_state=kwargs.get('random_state', 42),
+                random_state=kwargs.get('random_state', None),
                 seed=kwargs.get('seed', None),
                 missing=kwargs.get('missing', np.nan),
             )

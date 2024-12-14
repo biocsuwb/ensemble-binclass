@@ -51,7 +51,7 @@ class FeatureSelection:
             max_iter=kwargs.get('max_iter', 10000),
             tol=kwargs.get('tol', 0.0001),
             selection=kwargs.get('selection', 'cyclic'),
-            random_state=kwargs.get('random_state', 42),
+            random_state=kwargs.get('random_state', None),
         )
         lasso.fit(self.X, self.y)
         self.features = pd.Series(data=list(np.array(self.X.columns)[:self.size]), name="Lasso")
