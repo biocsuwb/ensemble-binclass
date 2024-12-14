@@ -10,7 +10,7 @@ class PerformanceMetrics:
         self.y_pred = classifier.predictions
         self.classifiers = (self.y_pred.keys())
         self.time = classifier.time
-        self.fold = classifier.cv_params['n_splits']
+        self.fold = classifier.n_splits
         self.fs = classifier.fs
 
         self.check_for_none()

@@ -20,14 +20,19 @@ class Ensemble:
         self.features = features
         self.classifiers = classifiers
         self.classifier_params = classifier_params
+        if self.classifier_params is None:
+            self.classifier_params = [{classifier: {}} for classifier in self.classifiers]
         self.model_classifiers = {}
         self.cross_validation = cv
-        self.cv_params = cv_params
+        self.cv_params = cv_params if cv_params is not None else {}
         self.ensemble = ensemble
         self.ensemble_params = ensemble_params
+        if self.ensemble_params is None:
+            self.ensemble_params = [{ensemble: {}} for ensemble in self.ensemble]
+
         self.predictions = {}
         self.time = {}
-        self.n_splits = cv_params.get('n_splits', 10)
+        self.n_splits = self.cv_params.get('n_splits', 5)
 
         for feature_set in self.features:
             X_ = self.X[feature_set]
