@@ -32,7 +32,7 @@ class ModelEvaluation:
                                                             test_size=kwargs.get('test_size', test_size),
                                                             shuffle=kwargs.get('shuffle', True),
                                                             stratify=kwargs.get('stratify', None),
-                                                            random_state=kwargs.get('random_state', 42),
+                                                            random_state=kwargs.get('random_state', None),
                                                             )
 
         return X_train, X_test, y_train, y_test
@@ -41,7 +41,7 @@ class ModelEvaluation:
         kf = KFold(
             n_splits=n_splits,
             shuffle=kwargs.get('shuffle', True),
-            random_state=42,
+            random_state=kwargs.get('random_state', None),
         )
         split_indices = list(kf.split(self.X))
 
@@ -53,7 +53,7 @@ class ModelEvaluation:
         skf = StratifiedKFold(
             n_splits=kwargs.get('n_splits', n_splits),
             shuffle=kwargs.get('shuffle', True),
-            random_state=42,
+            random_state=kwargs.get('random_state', None),
         )
         split_indices = list(skf.split(self.X, self.y))
 
