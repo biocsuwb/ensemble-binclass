@@ -26,10 +26,10 @@ class ModelEvaluation:
 
         return X_train_list, X_test_list, y_train_list, y_test_list
 
-    def hold_out(self, test_size: float, **kwargs):
+    def hold_out(self, **kwargs):
         X_train, X_test, y_train, y_test = train_test_split(self.X,
                                                             self.y,
-                                                            test_size=kwargs.get('test_size', test_size),
+                                                            test_size=kwargs.get('test_size', 0.25),
                                                             shuffle=kwargs.get('shuffle', True),
                                                             stratify=kwargs.get('stratify', None),
                                                             random_state=kwargs.get('random_state', None),
@@ -37,9 +37,9 @@ class ModelEvaluation:
 
         return X_train, X_test, y_train, y_test
 
-    def k_fold(self, n_splits: int, **kwargs):
+    def k_fold(self, **kwargs):
         kf = KFold(
-            n_splits=n_splits,
+            n_splits=kwargs.get('n_splits', 5),
             shuffle=kwargs.get('shuffle', True),
             random_state=kwargs.get('random_state', None),
         )
@@ -49,9 +49,9 @@ class ModelEvaluation:
 
         return X_train_list, X_test_list, y_train_list, y_test_list
 
-    def stratified_k_fold(self, n_splits: int, **kwargs):
+    def stratified_k_fold(self, **kwargs):
         skf = StratifiedKFold(
-            n_splits=kwargs.get('n_splits', n_splits),
+            n_splits=kwargs.get('n_splits', 5),
             shuffle=kwargs.get('shuffle', True),
             random_state=kwargs.get('random_state', None),
         )

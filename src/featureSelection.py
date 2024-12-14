@@ -28,17 +28,17 @@ class FeatureSelection:
         self.method = method_
         self.size = size
         self.features = None
-        self.params = params
+        self.params = params if params is not None else {}
 
         match self.method:
             case 'lasso':
-                self.lasso(**params)
+                self.lasso(**self.params)
             case 'relieff':
-                self.relieff(**params)
+                self.relieff(**self.params)
             case 'mrmr':
-                self.mrmr(**params)
+                self.mrmr(**self.params)
             case 'uTest':
-                self.u_test(**params)
+                self.u_test(**self.params)
             case _:
                 raise ValueError('Unknown method')
 
