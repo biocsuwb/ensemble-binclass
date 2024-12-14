@@ -54,7 +54,7 @@ class FeatureSelection:
             random_state=kwargs.get('random_state', None),
         )
         lasso.fit(self.X, self.y)
-        self.features = pd.Series(data=list(np.array(self.X.columns)[:self.size]), name="Lasso")
+        self.features = pd.Series(data=list(np.array(self.X.columns)[:self.size]), name="LASSO")
         return self.features
 
     def relieff(self, **kwargs):
@@ -71,7 +71,7 @@ class FeatureSelection:
         feature_scores_df = pd.DataFrame({'Feature': self.X.columns, 'Score': feature_scores})
         top_k_features = feature_scores_df.sort_values(by='Score', ascending=False).head(self.size)
         relieff_features = top_k_features['Feature'].tolist()
-        self.features = pd.Series(data=relieff_features, name="ReliefF")
+        self.features = pd.Series(data=relieff_features, name="RELIEFF")
         return self.features
 
     def mrmr(self, **kwargs):
@@ -88,7 +88,7 @@ class FeatureSelection:
             n_jobs=kwargs.get('n_jobs', -1),
             show_progress=kwargs.get('show_progress', True),
         )
-        self.features = pd.Series(data=mrmr_features, name="Mrmr")
+        self.features = pd.Series(data=mrmr_features, name="MRMR")
         return self.features
 
     def u_test(self, **kwargs):
@@ -118,7 +118,7 @@ class FeatureSelection:
 
         utest_features = sorted_p_value_df.loc[sorted_p_value_df['p_value'] < alpha]
         utest_features = utest_features.index.tolist()[:self.size]
-        self.features = pd.Series(data=utest_features, name="U-test")
+        self.features = pd.Series(data=utest_features, name="U-TEST")
         return self.features
 
     def show_features(self, size: int = 10):
