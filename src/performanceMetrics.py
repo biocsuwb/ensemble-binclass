@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score, roc_auc_score, f1_score, matthews_corrcoef
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score, roc_auc_score, f1_score, matthews_corrcoef, mean_squared_error
 
 
 class PerformanceMetrics:
@@ -115,6 +115,24 @@ class PerformanceMetrics:
         combined_dict = {classifier: [mean_dict[classifier], sd_dict.get(classifier)] for classifier in mean_dict}
 
         return "MCC: " + str(combined_dict), matthews_corrcoef_dict
+
+    def mean_squared_error(self):
+        mean_squared_error_dict = {}
+
+        for classifier in self.classifiers:
+            mc = []
+            if self.fold != 1:
+                for f in range(self.fold):
+                    mc.append(mean_squared_error(self.y_test[f], self.y_pred[classifier][f]))
+                mean_squared_error_dict[classifier] = mc
+            else:
+                mean_squared_error_dict[classifier] = mean_squared_error(self.y_test, self.y_pred)
+
+        mean_dict = {classifier: round(np.mean(values), 3) for classifier, values in mean_squared_error_dict.items()}
+        sd_dict = {classifier: round(np.std(values), 3) for classifier, values in mean_squared_error_dict.items()}
+        combined_dict = {classifier: [mean_dict[classifier], sd_dict.get(classifier)] for classifier in mean_dict}
+
+        return "MCC: " + str(combined_dict), mean_squared_error_dict
 
     def plot_acc(self):
         scores_dict = self.accuracy_score()[1]

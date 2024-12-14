@@ -51,30 +51,30 @@ class Classifier:
             for classifier, params in zip(self.classifiers, self.classifier_params):
                 match classifier:
                     case 'adaboost':
-                        self.predictions[f'adaboost_{feature_set.name}'] = self.adaboost(**params)
+                        self.predictions[f'{feature_set.name}_ADABOOST'] = self.adaboost(**params)
                     case 'gradient_boosting':
-                        self.predictions[f'gradient_boosting_{feature_set.name}'] = self.gradient_boosting(**params)
+                        self.predictions[f'{feature_set.name}_GRADIENT_BOOSTING'] = self.gradient_boosting(**params)
                     case 'random_forest':
-                        self.predictions[f'random_forest_{feature_set.name}'] = self.random_forest(**params)
+                        self.predictions[f'{feature_set.name}_RANDOM_FOREST'] = self.random_forest(**params)
                     case 'k_neighbors':
-                        self.predictions[f'k_nearest_neighbors_{feature_set.name}'] = self.k_nearest_neighbors(**params)
+                        self.predictions[f'{feature_set.name}_K_NEARST_NEIGHBORS'] = self.k_nearest_neighbors(**params)
                     case 'decision_tree':
-                        self.predictions[f'decision_tree_{feature_set.name}'] = self.decision_tree(**params)
+                        self.predictions[f'{feature_set.name}_DECISION_TREE'] = self.decision_tree(**params)
                     case 'extra_trees':
-                        self.predictions[f'extra_trees_{feature_set.name}'] = self.extra_trees(**params)
+                        self.predictions[f'{feature_set.name}_EXTRA_TREES'] = self.extra_trees(**params)
                     case 'svm':
-                        self.predictions[f'svm_{feature_set.name}'] = self.svm(**params)
+                        self.predictions[f'{feature_set.name}_SVM'] = self.svm(**params)
                     case 'xgb':
-                        self.predictions[f'xgb_{feature_set.name}'] = self.xgb(**params)
+                        self.predictions[f'{feature_set.name}_XGBOOST'] = self.xgb(**params)
                     case 'all':
-                        self.predictions[f'adaboost_{feature_set.name}'] = self.adaboost(**params)
-                        self.predictions[f'gradient_boosting_{feature_set.name}'] = self.gradient_boosting(**params)
-                        self.predictions[f'random_forest_{feature_set.name}'] = self.random_forest(**params)
-                        self.predictions[f'k_nearest_neighbors_{feature_set.name}'] = self.k_nearest_neighbors(**params)
-                        self.predictions[f'decision_tree_{feature_set.name}'] = self.decision_tree(**params)
-                        self.predictions[f'extra_trees_{feature_set.name}'] = self.extra_trees(**params)
-                        self.predictions[f'svm_{feature_set.name}'] = self.svm(**params)
-                        self.predictions[f'xgb_{feature_set.name}'] = self.xgb(**params)
+                        self.predictions[f'{feature_set.name}_ADABOOST'] = self.adaboost(**params)
+                        self.predictions[f'{feature_set.name}_GRADIENT_BOOSTING'] = self.gradient_boosting(**params)
+                        self.predictions[f'{feature_set.name}_RANDOM_FOREST'] = self.random_forest(**params)
+                        self.predictions[f'{feature_set.name}_K_NEARST_NEIGHBORS'] = self.k_nearest_neighbors(**params)
+                        self.predictions[f'{feature_set.name}_DECISION_TREE'] = self.decision_tree(**params)
+                        self.predictions[f'{feature_set.name}_EXTRA_TREES'] = self.extra_trees(**params)
+                        self.predictions[f'{feature_set.name}_SVM'] = self.svm(**params)
+                        self.predictions[f'{feature_set.name}_XGBOOST'] = self.xgb(**params)
                     case _:
                         raise ValueError('Invalid classifier name')
 
