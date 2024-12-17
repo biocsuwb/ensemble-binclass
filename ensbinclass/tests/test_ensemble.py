@@ -20,7 +20,7 @@ def test_voting():
 
     variables = [ens.X, ens.fs, ens.y, ens.X_train, ens.X_test, ens.y_train,
                  ens.y_test, ens.ensemble, ens.cross_validation, ens.classifiers,
-                 ens.model_classifiers, ens.predictions, ens.fold, ens.time]
+                 ens.model_classifiers, ens.predictions, ens.n_splits, ens.time]
 
     assert any(var is None for var in variables) is False
 
@@ -32,7 +32,7 @@ def test_bagging():
 
     variables = [ens.X, ens.fs, ens.y, ens.X_train, ens.X_test, ens.y_train,
                  ens.y_test, ens.ensemble, ens.cross_validation, ens.classifiers,
-                 ens.model_classifiers, ens.predictions, ens.fold, ens.time]
+                 ens.model_classifiers, ens.predictions, ens.n_splits, ens.time]
 
     assert any(var is None for var in variables) is False
 
@@ -44,6 +44,6 @@ def test_stacking():
 
     variables = [ens.X, ens.fs, ens.y, ens.X_train, ens.X_test, ens.y_train,
                  ens.y_test, ens.ensemble, ens.cross_validation, ens.classifiers,
-                 ens.model_classifiers, ens.predictions, ens.fold, ens.time]
+                 ens.model_classifiers, ens.predictions, ens.n_splits, ens.time]
 
     assert any(var is None for var in variables) is False

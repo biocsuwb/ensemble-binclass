@@ -11,7 +11,7 @@ features = features.get_features()
 
 def test_classifiers():
     clf = classifier.Classifier(X, y, features=features, classifiers=['all'],
-                                cross_validation='stratified_k_fold', fold=10)
+                                cv='stratified_k_fold', fold=10)
 
     variables = [clf.X, clf.fs, clf.y, clf.X_train, clf.X_test, clf.y_train,
                  clf.y_test, clf.cross_validation, clf.classifiers,
