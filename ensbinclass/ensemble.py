@@ -1,7 +1,7 @@
 import time
 import pandas as pd
-import src.modelEvaluation as modelEvaluation
-from src.performanceMetrics import PerformanceMetrics
+from ensbinclass import modelEvaluation
+from ensbinclass.performanceMetrics import PerformanceMetrics
 from sklearn.ensemble import VotingClassifier, BaggingClassifier, StackingClassifier, AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier, \
     RandomForestClassifier
 from sklearn.svm import SVC

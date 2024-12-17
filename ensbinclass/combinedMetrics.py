@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from typing import List
-from src.performanceMetrics import PerformanceMetrics
+from ensbinclass.performanceMetrics import PerformanceMetrics
 
 
 class CombinedMetrics:
