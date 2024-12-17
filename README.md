@@ -36,18 +36,20 @@ It requires .... and .... packages.
 
 ### Install the development version from GitHub:
 To install this package, clone the repository and install with pip:
-```r
+```python
 install.packages("ensemble-binclass")
 devtools::install_github("biocsuwb/ensemble-binclass")
 ```
 ### Install the development version from PyPi repository:
-```r
+```python
 pip install ensemble-binclass
 ```
 ## Import module
-```r
-from ensemble-binclass import ... as ...
-from ensemble-binclass import ... as ...
+```python
+from ensbinclass import preprocessing as pre
+from ensbinclass import featureSelection as fs
+from ensbinclass import classifier as cl
+from ensbinclass import ensemble as ens 
 import pandas as pd
 import numpy as np
 ```
@@ -71,17 +73,28 @@ The first column ("class") includes the subtype of patients with LGG.
 8. Construct diagnosis system using the best classifier 
 
 ## Example 1 - Construct the predictive model with molecular data by using one of eight basic classifiers
-### Load example training data
-```r
-download.file("https://raw.githubusercontent.com/biocsuwb/EnsembleFS-package/main/data/correctData/correctData/df.RNA.merge.image.LGG.csv", 
-              destfile = "correctData/correctData/df.RNA.merge.image.LGG.csv", method = "curl")
-
-data_RNA = dp.OmicDataPreprocessing(path='correctData/df.RNA.merge.image.LGG.csv')
-
-data_RNA.load_data()
+### Load and check correctness of example data
+```python
+pr = pre.DataPreprocessing()
+pr.load_data('test_data/exampleData_TCGA_LUAD_2000.csv')
+pr.show_data()
 ```
 ### Prepare omic data for machine learning
 
+#### Choose target column 
+```python
+X, y = pr.set_target('class')
+```
+
+#### Remove collinear features throught the Spearman correlation matrix
+```python
+pr.remove_collinear_features(threshold=0.75)
+```
+
+#### MinMaxScaler features normalization
+```python
+X = pr.normalization()
+```
 
 ### Feature selection using the LASSO method
 
@@ -102,21 +115,7 @@ data_RNA.load_data()
 
 #### Run LASSO 
 ```python
-lasso_features = fs.FeatureSelection(
-    X, 
-    y,
-    method_='lasso',
-    size=100,
-    params={
-        'alpha': 0.1,
-        'fit_intercept': True,
-        'precompute': False,
-        'max_iter': 10000,
-        'tol': 0.0001,
-        'selection': 'cyclic',
-        'random_state': 42,
-    },
-)
+lasso_features = fs.FeatureSelection(X, y, method_='lasso', size=100, params={'alpha': 0.1, fit_intercept': True},)
 ```
  
 ## Example 2 - Construct the predictive model with molecular data by using stacking ensemble learning
