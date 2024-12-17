@@ -150,39 +150,18 @@ ens_stacking = ens.Ensemble(
 ens_voting = ens.Ensemble(
     X,
     y,
-    features=[
-        relieff_features.features,
-        lasso_features.features,
-    ],
-    classifiers=[
-        'adaboost',
-        'random_forest',
-        'svm',
-    ],
+    features=[relieff_features.features, lasso_features.features,],
+    classifiers=['adaboost', 'random_forest', 'svm',],
     classifier_params=[
-        {'adaboost': {
-            'n_estimators': 100, 'learning_rate': 0.9,
-            }
-        },
-        {'random_forest': {
-            'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,
-            }
-        },
-        {'svm': {
-            'C': 1, 'kernel': 'linear', 'gamma': 'auto'
-            }
-        },
+        {'adaboost': {'n_estimators': 100, 'learning_rate': 0.9,}},
+        {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,}},
+        {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},
     ],  
     cv='stratified_k_fold',
     cv_params={'n_splits': 10},
-    ensemble=[
-        'voting',
-    ],
+    ensemble=['voting',],
     ensemble_params=[
-        {'voting': {
-            'voting': 'soft'
-            }
-        },
+        {'voting': {'voting': 'soft'}},
     ],
 )
 ```
@@ -198,28 +177,12 @@ ens_voting = ens.Ensemble(
 ens_bagging = ens.Ensemble(
     X,
     y,
-    features=[
-        relieff_features.features,
-        lasso_features.features,
-    ],
-    classifiers=[
-        'adaboost',
-        'random_forest',
-        'svm',
-    ],
+    features=[relieff_features.features, lasso_features.features,],
+    classifiers=['adaboost', 'random_forest', 'svm',],
     classifier_params=[
-        {'adaboost': {
-            'n_estimators': 100, 'learning_rate': 0.9,
-            }
-        },
-        {'random_forest': {
-            'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,
-            }
-        },
-        {'svm': {
-            'C': 1, 'kernel': 'linear', 'gamma': 'auto'
-            }
-        },
+        {'adaboost': {'n_estimators': 100, 'learning_rate': 0.9,}},
+        {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,}},
+        {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},
     ],  
     cv='stratified_k_fold',
     cv_params={'n_splits': 10},
@@ -228,9 +191,7 @@ ens_bagging = ens.Ensemble(
     ],
     ensemble_params=[
         {'bagging': {
-            'estimator_name': 'random_forest', 'n_estimators': 100, 'max_samples': 0.5, 'max_features': 0.5
-            }
-        },
+            'estimator_name': 'random_forest', 'n_estimators': 100, 'max_samples': 0.5, 'max_features': 0.5}},
     ],
 )
 ```
