@@ -98,25 +98,55 @@ X = pr.normalization()
 
 ### Feature selection using the LASSO method
 
-#### (Optional) LASSO configuration parameters 
-- ***params = {'alpha': 0.1,
-        'fit_intercept': True,
-        'precompute': False,
-        'max_iter': 10000,
-        'tol': 0.0001,
-        'selection': 'cyclic',
-        'random_state': 42,}***;
-- U-test parameter, significance level: ***alpha = 0.05***;
-- validation methods: ***method.cv = {'kfoldcv','rsampling'}***;
-- number of repetitions: ***niter = 10***;
-- train-test-split the data: ***k = 3*** for stratified k-fold cross-validation and ***test.size = 0.3*** for random sampling;
-- classifier: SVM;
-- classifier parameter: ***kernel = ***{‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’}***;
+#### Required LASSO configuration parameters
+- X, variables (pd.DataFrame) ***X=X***;
+- y, target (pd.Series) ***y=y***;
+- method_, FS method (str) ***method_='lasso'***;
+- size, top n variables (int) ***size=100***;
+
+#### Optional LASSO configuration parameters 
+- params, feature selection method hyperparameters (dict) ***params={'alpha': 0.00001, 'fit_intercept: True, 'precompute': False, 'max_iter': 10000, 'tol': 0.0001, 'selection': 'cyclic', 'random_state': None}***;
 
 #### Run LASSO 
 ```python
-lasso_features = fs.FeatureSelection(X, y, method_='lasso', size=100, params={'alpha': 0.1, fit_intercept': True},)
+lasso_features = fs.FeatureSelection(X, y, method_='lasso', size=100, params={'alpha': 0.00001, 'fit_intercept': True},)
 ```
+
+#### Run RELIEFF 
+```python
+lasso_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params={'n_neigbors': 100},)
+```
+
+#### Run MRMR
+```python
+lasso_features = fs.FeatureSelection(X, y, method_='mrmr', size=100, params={'relevance': 'f', 'redundancy': 'c'},)
+```
+
+#### Run U-TEST 
+```python
+lasso_features = fs.FeatureSelection(X, y, method_='uTest', size=100, params={'use_continuity': True, 'alternative': 'two-sided'},)
+```
+
+### g:Profiler - interoperable web service for functional enrichment analysis and gene identifier mapping
+
+#### get_profiler configurations parameters
+- return_dataframe, result type (bool) if True, query results are presented as pandas DataFrames, otherwise as a list of dicts;
+- organism, Organism id for profiling (str) For full list see https://biit.cs.ut.ee/gprofiler/page/organism-list
+- query, list of genes to profile (pd.Series or  list)
+
+```python
+fs.get_profiler(
+  return_dataframe=True,
+  organism='hsapiens',
+  query=lasso_features[:5],
+)
+```
+
+|    | source   | native     | name                                             |   p_value | significant   | description                                                                                                                                                                                                                                                                                                                                                                                                                     |   term_size |   query_size |   intersection_size |   effective_domain_size |   precision |    recall | query   | parents                                                  |
+|---:|:---------|:-----------|:-------------------------------------------------|----------:|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------:|-------------:|--------------------:|------------------------:|------------:|----------:|:--------|:---------------------------------------------------------|
+|  0 | GO:BP    | GO:0050805 | negative regulation of synaptic transmission     | 0.0267705 | True          | "Any process that stops, prevents, or reduces the frequency, rate or extent of synaptic transmission, the process of communication from a neuron to a target (neuron, muscle, or secretory cell) across a synapse." [GOC:ai]                                                                                                                                                                                                    |          55 |            4 |                   2 |                   21031 |         0.5 | 0.0363636 | query_1 | ['GO:0007268', 'GO:0010648', 'GO:0023057', 'GO:0050804'] |
+|  1 | GO:MF    | GO:0019811 | cocaine binding                                  | 0.0498746 | True          | "Binding to cocaine (2-beta-carbomethoxy-3-beta-benzoxytropane), an alkaloid obtained from dried leaves of the South American shrub Erythroxylon coca or by chemical synthesis." [GOC:jl, ISBN:0198506732]                                                                                                                                                                                                                      |           1 |            5 |                   1 |                   20212 |         0.2 | 1         | query_1 | ['GO:0043169', 'GO:0097159', 'GO:1901363']               |
+|  2 | GO:MF    | GO:0050785 | advanced glycation end-product receptor activity | 0.0498746 | True          | "Combining with advanced glycation end-products and transmitting the signal to initiate a change in cell activity. Advanced glycation end-products (AGEs) form from a series of chemical reactions after an initial glycation event (a non-enzymatic reaction between reducing sugars and free amino groups of proteins)." [GOC:signaling, PMID:12453678, PMID:12707408, PMID:7592757, PMID:9224812, Wikipedia:RAGE_(receptor)] |           1 |            5 |                   1 |                   20212 |         0.2 | 1         | query_1 | ['GO:0038023']                                           |
  
 ## Example 2 - Construct the predictive model with molecular data by using stacking ensemble learning
 ```python
