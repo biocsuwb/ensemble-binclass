@@ -57,7 +57,7 @@ class DataPreprocessing:
 
         return self.X, self.y
 
-    def standardization(self):
+    def normalization(self):
         scaler = MinMaxScaler()
         scaler.fit(self.X)
         self.X = pd.DataFrame(scaler.transform(self.X), index=self.X.index, columns=self.X.columns)
