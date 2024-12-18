@@ -98,7 +98,7 @@ X = pr.normalization()
 
 ### Feature selection using the LASSO method
 
-#### Required LASSO configuration parameters
+#### Required FS configuration parameters
 - X, variables (pd.DataFrame) ***X=X***;
 - y, target (pd.Series) ***y=y***;
 - method_, FS method (str) ***method_='lasso'***;
@@ -112,15 +112,24 @@ X = pr.normalization()
 lasso_features = fs.FeatureSelection(X, y, method_='lasso', size=100, params={'alpha': 0.00001, 'fit_intercept': True},)
 ```
 
+#### Optional RELIEFF configuration parameters 
+- params, feature selection method hyperparameters (dict) ***params={'n_neighbors': 100}***;
+
 #### Run RELIEFF 
 ```python
 lasso_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params={'n_neigbors': 100},)
 ```
 
+#### Optional MRMR configuration parameters 
+- params, feature selection method hyperparameters (dict) ***params={'relevance': 'f', 'redundancy': 'c', 'denominator': 'mean', 'cat_features': None, 'only_same_domain': False, 'return_scores': False, 'n_jobs': -1, 'show_progress': True}***;
+
 #### Run MRMR
 ```python
 lasso_features = fs.FeatureSelection(X, y, method_='mrmr', size=100, params={'relevance': 'f', 'redundancy': 'c'},)
 ```
+
+#### Optional U-TEST configuration parameters 
+- params, feature selection method hyperparameters (dict) ***params={'use_continuity': True, 'alternative': 'two-sided', 'axis': 0, 'method': 'auto'}***;
 
 #### Run U-TEST 
 ```python
