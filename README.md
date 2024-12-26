@@ -96,7 +96,7 @@ pr.remove_collinear_features(threshold=0.75)
 X = pr.normalization()
 ```
 
-### Feature selection using the LASSO method
+### Feature selection using the FS methods
 
 #### Required FS configuration parameters
 - X, variables (pd.DataFrame) ***X=X***;
@@ -157,7 +157,23 @@ fs.get_profiler(
 |  1 | GO:MF    | GO:0019811 | cocaine binding                                  | 0.0498746 | True          | "Binding to cocaine (2-beta-carbomethoxy-3-beta-benzoxytropane), an alkaloid obtained from dried leaves of the South American shrub Erythroxylon coca or by chemical synthesis." [GOC:jl, ISBN:0198506732]                                                                                                                                                                                                                      |           1 |            5 |                   1 |                   20212 |         0.2 | 1         | query_1 | ['GO:0043169', 'GO:0097159', 'GO:1901363']               |
 |  2 | GO:MF    | GO:0050785 | advanced glycation end-product receptor activity | 0.0498746 | True          | "Combining with advanced glycation end-products and transmitting the signal to initiate a change in cell activity. Advanced glycation end-products (AGEs) form from a series of chemical reactions after an initial glycation event (a non-enzymatic reaction between reducing sugars and free amino groups of proteins)." [GOC:signaling, PMID:12453678, PMID:12707408, PMID:7592757, PMID:9224812, Wikipedia:RAGE_(receptor)] |           1 |            5 |                   1 |                   20212 |         0.2 | 1         | query_1 | ['GO:0038023']                                           |
  
-## Example 2 - Construct the predictive model with molecular data by using stacking ensemble learning
+## Example 2 - Construct the predictive model with molecular data by using ensemble learning
+
+### Required Ensemble configuration parameters
+- X, variables (pd.DataFrame) ***X=X***;
+- y, target (pd.Series) ***y=y***;
+- features, list of feature sets (list) ***features=[relieff_features.features, lasso_features.features,]***;
+- classifiers, list of classifiers (list) ***classifiers=['adaboost', 'random_forest', 'svm',]***;
+- cv, cross-validation method (str) ***cv='stratified_k_fold'***;
+- ensemble, list of ensemble methods (list) ***ensemble=['stacking',]***;
+
+### Optional Ensemble configuration parameters
+- classifier_params, classifiers hyperparameters (list) ***classifier_params=[{'adaboost': {'n_estimators': 100, 'learning_rate': 0.9,}}, {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,}}, {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},]***;
+- cv_params, cross-validation method hyperparameters (dict) ***cv_params={'n_splits': 10}***;
+- ensemble_params, ensemble hyperparameters (list) ***ensemble_params=[{'stacking': {'final_estimator': None,}},]***;
+
+#### Stacking ensemble learning
+
 ```python
 ens_stacking = ens.Ensemble(
     X,
@@ -183,8 +199,11 @@ ens_stacking = ens.Ensemble(
  "F1 score: {'stacking_ReliefF': [0.993, 0.011], 'stacking_Lasso': [0.997, 0.006]}",
  "MCC: {'stacking_ReliefF': [0.929, 0.13], 'stacking_Lasso': [0.972, 0.062]}"]
 ```
-## Example 3 - Construct the predictive model with molecular data by using voting ensemble learning
+
+#### Voting ensemble learning
+
 ```python
+
 ens_voting = ens.Ensemble(
     X,
     y,
@@ -210,7 +229,8 @@ ens_voting = ens.Ensemble(
  "F1 score: {'voting_ReliefF': [0.996, 0.005], 'voting_Lasso': [0.996, 0.009]}",
  "MCC: {'voting_ReliefF': [0.964, 0.044], 'voting_Lasso': [0.962, 0.09]}"]
 ```
-## Example 4 - Construct the predictive model with molecular data by using bagging ensemble learning
+
+#### Bagging ensemble learning
 ```python
 ens_bagging = ens.Ensemble(
     X,
