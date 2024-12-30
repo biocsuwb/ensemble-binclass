@@ -121,7 +121,7 @@ lasso_features = fs.FeatureSelection(X, y, method_='lasso', size=100, params={'a
 
 #### Run RELIEFF 
 ```python
-lasso_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params={'n_neighbors': 100},)
+relieff_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params={'n_neighbors': 100},)
 ```
 
 #### MRMR hyperparameters
@@ -129,7 +129,7 @@ lasso_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params={
 
 #### Run MRMR
 ```python
-lasso_features = fs.FeatureSelection(X, y, method_='mrmr', size=100, params={'relevance': 'f', 'redundancy': 'c'},)
+mrmr_features = fs.FeatureSelection(X, y, method_='mrmr', size=100, params={'relevance': 'f', 'redundancy': 'c'},)
 ```
 
 #### U-TEST hyperparameters
@@ -137,7 +137,7 @@ lasso_features = fs.FeatureSelection(X, y, method_='mrmr', size=100, params={'re
 
 #### Run U-TEST 
 ```python
-lasso_features = fs.FeatureSelection(X, y, method_='uTest', size=100, params={'use_continuity': True, 'alternative': 'two-sided'},)
+utest_features = fs.FeatureSelection(X, y, method_='uTest', size=100, params={'use_continuity': True, 'alternative': 'two-sided'},)
 ```
 
 ### g:Profiler - interoperable web service for functional enrichment analysis and gene identifier mapping
