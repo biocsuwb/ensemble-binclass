@@ -209,7 +209,6 @@ ens_stacking = ens.Ensemble(
 ### Voting ensemble learning
 
 ```python
-
 ens_voting = ens.Ensemble(
     X,
     y,
