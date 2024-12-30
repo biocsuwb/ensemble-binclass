@@ -30,9 +30,11 @@ Fig.1 The ensemble learning strategy in ensemble-binclass.
 
 ## The package consists of the following components:
 
-
-## Install package
-It requires .... and .... packages.
+### Install required packages
+To install required packages, run the following command:
+```shell
+pip install -r ./requirements.txt
+```
 
 ### Install the development version from GitHub:
 To install this package, clone the repository and install with pip:
@@ -41,9 +43,11 @@ install.packages("ensemble-binclass")
 devtools::install_github("biocsuwb/ensemble-binclass")
 ```
 ### Install the development version from PyPi repository:
+
 ```python
 pip install ensemble-binclass
 ```
+
 ## Import module
 ```python
 from ensbinclass import preprocessing as pre
@@ -98,13 +102,13 @@ X = pr.normalization()
 
 ### Feature selection using the FS methods
 
-#### Required FS configuration parameters
+#### Feature selection parameters
 - X, variables (pd.DataFrame) ***X=X***;
 - y, target (pd.Series) ***y=y***;
 - method_, FS method (str) ***method_='lasso'***;
 - size, top n variables (int) ***size=100***;
 
-#### Optional LASSO configuration parameters 
+#### LASSO hyperparameters 
 - params, feature selection method hyperparameters (dict) ***params={'alpha': 0.00001, 'fit_intercept: True, 'precompute': False, 'max_iter': 10000, 'tol': 0.0001, 'selection': 'cyclic', 'random_state': None}***;
 
 #### Run LASSO 
@@ -112,15 +116,15 @@ X = pr.normalization()
 lasso_features = fs.FeatureSelection(X, y, method_='lasso', size=100, params={'alpha': 0.00001, 'fit_intercept': True},)
 ```
 
-#### Optional RELIEFF configuration parameters 
+#### RELIEFF hyperparameters
 - params, feature selection method hyperparameters (dict) ***params={'n_neighbors': 100}***;
 
 #### Run RELIEFF 
 ```python
-lasso_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params={'n_neigbors': 100},)
+lasso_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params={'n_neighbors': 100},)
 ```
 
-#### Optional MRMR configuration parameters 
+#### MRMR hyperparameters
 - params, feature selection method hyperparameters (dict) ***params={'relevance': 'f', 'redundancy': 'c', 'denominator': 'mean', 'cat_features': None, 'only_same_domain': False, 'return_scores': False, 'n_jobs': -1, 'show_progress': True}***;
 
 #### Run MRMR
@@ -128,7 +132,7 @@ lasso_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params={
 lasso_features = fs.FeatureSelection(X, y, method_='mrmr', size=100, params={'relevance': 'f', 'redundancy': 'c'},)
 ```
 
-#### Optional U-TEST configuration parameters 
+#### U-TEST hyperparameters
 - params, feature selection method hyperparameters (dict) ***params={'use_continuity': True, 'alternative': 'two-sided', 'axis': 0, 'method': 'auto'}***;
 
 #### Run U-TEST 
@@ -159,7 +163,9 @@ fs.get_profiler(
  
 ## Example 2 - Construct the predictive model with molecular data by using ensemble learning
 
-### Required Ensemble configuration parameters
+### Ensemble configuration parameters
+
+### Required parameters
 - X, variables (pd.DataFrame) ***X=X***;
 - y, target (pd.Series) ***y=y***;
 - features, list of feature sets (list) ***features=[relieff_features.features, lasso_features.features,]***;
@@ -167,12 +173,12 @@ fs.get_profiler(
 - cv, cross-validation method (str) ***cv='stratified_k_fold'***;
 - ensemble, list of ensemble methods (list) ***ensemble=['stacking',]***;
 
-### Optional Ensemble configuration parameters
-- classifier_params, classifiers hyperparameters (list) ***classifier_params=[{'adaboost': {'n_estimators': 100, 'learning_rate': 0.9,}}, {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,}}, {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},]***;
+### Optional parameters
+- classifier_params, classifiers hyperparameters (list of dicts) ***classifier_params=[{'adaboost': {'n_estimators': 100, 'learning_rate': 0.9,}}, {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,}}, {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},]***;
 - cv_params, cross-validation method hyperparameters (dict) ***cv_params={'n_splits': 10}***;
-- ensemble_params, ensemble hyperparameters (list) ***ensemble_params=[{'stacking': {'final_estimator': None,}},]***;
+- ensemble_params, ensemble hyperparameters (list of dicts) ***ensemble_params=[{'stacking': {'final_estimator': None,}},]***;
 
-#### Stacking ensemble learning
+### Stacking ensemble learning
 
 ```python
 ens_stacking = ens.Ensemble(
@@ -200,7 +206,7 @@ ens_stacking = ens.Ensemble(
  "MCC: {'stacking_ReliefF': [0.929, 0.13], 'stacking_Lasso': [0.972, 0.062]}"]
 ```
 
-#### Voting ensemble learning
+### Voting ensemble learning
 
 ```python
 
@@ -230,7 +236,7 @@ ens_voting = ens.Ensemble(
  "MCC: {'voting_ReliefF': [0.964, 0.044], 'voting_Lasso': [0.962, 0.09]}"]
 ```
 
-#### Bagging ensemble learning
+### Bagging ensemble learning
 ```python
 ens_bagging = ens.Ensemble(
     X,
