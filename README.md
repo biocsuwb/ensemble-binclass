@@ -49,11 +49,12 @@ pip install ensemble-binclass
 ```
 
 ## Import module
+
 ```python
 from ensbinclass import preprocessing as pre
 from ensbinclass import featureSelection as fs
 from ensbinclass import classifier as cl
-from ensbinclass import ensemble as ens 
+from ensbinclass import ensemble as ens
 import pandas as pd
 import numpy as np
 ```
@@ -104,8 +105,8 @@ X = pr.normalization()
 
 #### Feature selection parameters
 - X, variables (pd.DataFrame) ***X=X***;
-- y, target (pd.Series) ***y=y***;
-- method_, FS method (str) ***method_='lasso'***;
+- y, target variable (pd.Series) ***y=y***;
+- method_, FS method name (str) ***method_='lasso'***;
 - size, top n variables (int) ***size=100***;
 
 #### LASSO hyperparameters 
@@ -172,6 +173,7 @@ fs.get_profiler(
 - classifiers, list of classifiers (list) ***classifiers=['adaboost', 'random_forest', 'svm',]***;
 - cv, cross-validation method (str) ***cv='stratified_k_fold'***;
 - ensemble, list of ensemble methods (list) ***ensemble=['stacking',]***;
+- repetitions, number of repetitions (int) ***repetitions=10***;
 
 ### Optional parameters
 - classifier_params, classifiers hyperparameters (list of dicts) ***classifier_params=[{'adaboost': {'n_estimators': 100, 'learning_rate': 0.9,}}, {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,}}, {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},]***;
@@ -196,15 +198,33 @@ ens_stacking = ens.Ensemble(
     ensemble=['stacking',],
     ensemble_params=[
         {'stacking': {'final_estimator': None,}},
-    ],)
+    ],
+    repetitions=10,
+)
+```
+
+#### Get model metrics
+```python
+ens_stacking.all_metrics()
 ```
 
 ```console
-["ACC: {'stacking_ReliefF': [0.988, 0.02], 'stacking_Lasso': [0.995, 0.011]}",
- "Roc Auc: {'stacking_ReliefF': [0.964, 0.099], 'stacking_Lasso': [0.982, 0.05]}",
- "F1 score: {'stacking_ReliefF': [0.993, 0.011], 'stacking_Lasso': [0.997, 0.006]}",
- "MCC: {'stacking_ReliefF': [0.929, 0.13], 'stacking_Lasso': [0.972, 0.062]}"]
+["ACC: {'RELIEFF_STACKING': [0.993, 0.01], 'LASSO_STACKING': [0.994, 0.009]}",
+ "Roc Auc: {'RELIEFF_STACKING': [0.981, 0.035], 'LASSO_STACKING': [0.984, 0.032]}",
+ "F1 score: {'RELIEFF_STACKING': [0.996, 0.006], 'LASSO_STACKING': [0.997, 0.005]}",
+ "MCC: {'RELIEFF_STACKING': [0.962, 0.054], 'LASSO_STACKING': [0.968, 0.051]}"]
 ```
+
+#### Visualization of the model metrics
+
+```python
+ens_stacking.plot_roc_auc()
+```
+
+<p align="center">
+    <img src="Images/ens_stacking_roc_auc.png" alt="Fig.4", width="500">
+</p>
+
 
 ### Voting ensemble learning
 
@@ -225,15 +245,33 @@ ens_voting = ens.Ensemble(
     ensemble_params=[
         {'voting': {'voting': 'soft'}},
     ],
+    repetitions=10,
 )
+
+ens_voting.all_metrics()
+```
+
+#### Get model metrics
+```python
+ens_voting.all_metrics()
 ```
 
 ```console
-["ACC: {'voting_ReliefF': [0.993, 0.009], 'voting_Lasso': [0.993, 0.016]}",
- "Roc Auc: {'voting_ReliefF': [0.989, 0.024], 'voting_Lasso': [0.981, 0.053]}",
- "F1 score: {'voting_ReliefF': [0.996, 0.005], 'voting_Lasso': [0.996, 0.009]}",
- "MCC: {'voting_ReliefF': [0.964, 0.044], 'voting_Lasso': [0.962, 0.09]}"]
+["ACC: {'RELIEFF_VOTING': [0.991, 0.012], 'LASSO_VOTING': [0.995, 0.009]}",
+ "Roc Auc: {'RELIEFF_VOTING': [0.98, 0.039], 'LASSO_VOTING': [0.989, 0.027]}",
+ "F1 score: {'RELIEFF_VOTING': [0.995, 0.007], 'LASSO_VOTING': [0.997, 0.005]}",
+ "MCC: {'RELIEFF_VOTING': [0.952, 0.061], 'LASSO_VOTING': [0.973, 0.047]}"]
 ```
+
+#### Visualization of the model metrics
+
+```python
+ens_voting.plot_roc_auc()
+```
+
+<p align="center">
+    <img src="Images/ens_voting_roc_auc.png" alt="Fig.4" width="500">
+</p>
 
 ### Bagging ensemble learning
 ```python
@@ -256,12 +294,30 @@ ens_bagging = ens.Ensemble(
         {'bagging': {
             'estimator_name': 'random_forest', 'n_estimators': 100, 'max_samples': 0.5, 'max_features': 0.5}},
     ],
+    repetitions=10,
 )
+
+ens_bagging.all_metrics()
+```
+
+#### Get model metrics
+```python
+ens_bagging.all_metrics()
 ```
 
 ```console
-["ACC: {'bagging_ReliefF': [0.99, 0.016], 'bagging_Lasso': [0.988, 0.02]}",
- "Roc Auc: {'bagging_ReliefF': [0.965, 0.076], 'bagging_Lasso': [0.964, 0.078]}",
- "F1 score: {'bagging_ReliefF': [0.994, 0.009], 'bagging_Lasso': [0.993, 0.011]}",
- "MCC: {'bagging_ReliefF': [0.941, 0.094], 'bagging_Lasso': [0.932, 0.124]}"]
+["ACC: {'RELIEFF_BAGGING': [0.989, 0.013], 'LASSO_BAGGING': [0.987, 0.014]}",
+ "Roc Auc: {'RELIEFF_BAGGING': [0.961, 0.052], 'LASSO_BAGGING': [0.962, 0.049]}",
+ "F1 score: {'RELIEFF_BAGGING': [0.994, 0.007], 'LASSO_BAGGING': [0.993, 0.008]}",
+ "MCC: {'RELIEFF_BAGGING': [0.94, 0.069], 'LASSO_BAGGING': [0.931, 0.072]}"]
+ ```
+
+#### Visualization of the model metrics
+
+```python
+ens_bagging.plot_roc_auc()
 ```
+
+<p align="center">
+    <img src="Images/ens_bagging_roc_auc.png" alt="Fig.4" width="500">
+</p>
