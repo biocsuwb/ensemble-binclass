@@ -1,6 +1,6 @@
 import pytest
-import src.featureSelection as featureSelection
-import src.preprocessing as preprocessing
+import ensbinclass.featureSelection as featureSelection
+import ensbinclass.preprocessing as preprocessing
 
 NUM_FEATURES = 10
 

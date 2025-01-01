@@ -1,6 +1,6 @@
-import src.preprocessing as preprocessing
-import src.featureSelection as featureSelection
-import src.classifier as classifier
+import ensbinclass.preprocessing as preprocessing
+import ensbinclass.featureSelection as featureSelection
+import ensbinclass.classifier as classifier
 
 pr = preprocessing.DataPreprocessing()
 pr.load_data('../../test_data/exampleData_TCGA_LUAD_2000.csv')
