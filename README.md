@@ -24,9 +24,10 @@ It can be applied to two-class problems.
 Fig.1 The ensemble learning strategy in ensemble-binclass.
 
 ## General workflow of the ensemble learning
-<p align="center">
-    <img src="https://github.com/biocsuwb/Images/blob/main/WorkflowEnsembleBin.jpg?raw=true" alt="Fig.3 Flowchart of ensemble learning. " width="500">
-</p>
+
+![Fig.2](https://github.com/biocsuwb/Images/blob/main/WorkflowEnsembleBin.jpg?raw=true) 
+
+Fig.2 Flowchart of ensemble learning.
 
 ## The package consists of the following components:
 
@@ -63,9 +64,10 @@ The RNA-sequencing data of subtypes low-grade glioblastoma (LGG) patients from T
 The first column ("class") includes the subtype of patients with LGG. 
 
 ## Challenges in analysing molecular data
-<p align="center">
-    <img src="https://github.com/biocsuwb/Images/blob/main/Problem_dataomics.jpg?raw=true" alt="Fig.2" width="650">
-</p>
+
+![Fig.3](https://github.com/biocsuwb/Images/blob/main/Problem_dataomics.jpg?raw=true)
+
+Fig.3 Challenges in analysing molecular data.
 
 ## Detailed step-by-step instruction on how to conduct the analysis:
 1. Identify relevant variables (candidate diagnostic biomarkers) by using FS methods
@@ -162,6 +164,8 @@ fs.get_profiler(
 |  1 | GO:MF    | GO:0019811 | cocaine binding                                  | 0.0498746 | True          | "Binding to cocaine (2-beta-carbomethoxy-3-beta-benzoxytropane), an alkaloid obtained from dried leaves of the South American shrub Erythroxylon coca or by chemical synthesis." [GOC:jl, ISBN:0198506732]                                                                                                                                                                                                                      |           1 |            5 |                   1 |                   20212 |         0.2 | 1         | query_1 | ['GO:0043169', 'GO:0097159', 'GO:1901363']               |
 |  2 | GO:MF    | GO:0050785 | advanced glycation end-product receptor activity | 0.0498746 | True          | "Combining with advanced glycation end-products and transmitting the signal to initiate a change in cell activity. Advanced glycation end-products (AGEs) form from a series of chemical reactions after an initial glycation event (a non-enzymatic reaction between reducing sugars and free amino groups of proteins)." [GOC:signaling, PMID:12453678, PMID:12707408, PMID:7592757, PMID:9224812, Wikipedia:RAGE_(receptor)] |           1 |            5 |                   1 |                   20212 |         0.2 | 1         | query_1 | ['GO:0038023']                                           |
  
+Table 1. The g:Profiler results for the top 5 features selected by the LASSO method.
+
 ## Example 2 - Construct the predictive model with molecular data by using basic classifiers
 
 ### Required parameters
@@ -214,8 +218,10 @@ clf.plot_roc_auc()
 ```
 
 <p align="center">
-    <img src="Images/clf_roc_auc.png" alt="Fig.3" width="500">
+    <img src="Images/clf_roc_auc.png" alt="Fig.4" width="500">
 </p>
+
+Fig. 4 The ROC AUC score for the predictive model with molecular data by using basic classifiers.
 
 ## Example 3 - Construct the predictive model with molecular data by using ensemble learning
 
@@ -277,9 +283,10 @@ ens_stacking.plot_roc_auc()
 ```
 
 <p align="center">
-    <img src="Images/ens_stacking_roc_auc.png" alt="Fig.4", width="500">
+    <img src="Images/ens_stacking_roc_auc.png" alt="Fig.5", width="500">
 </p>
 
+Fig. 5 The ROC AUC score for the predictive model with molecular data by using ensemble learning.
 
 ### Voting ensemble learning
 
@@ -325,8 +332,10 @@ ens_voting.plot_roc_auc()
 ```
 
 <p align="center">
-    <img src="Images/ens_voting_roc_auc.png" alt="Fig.5" width="500">
+    <img src="Images/ens_voting_roc_auc.png" alt="Fig.6" width="500">
 </p>
+
+Fig. 6 The ROC AUC score for the predictive model with molecular data by using ensemble learning.
 
 ### Bagging ensemble learning
 ```python
@@ -374,5 +383,7 @@ ens_bagging.plot_roc_auc()
 ```
 
 <p align="center">
-    <img src="Images/ens_bagging_roc_auc.png" alt="Fig.6" width="500">
+    <img src="Images/ens_bagging_roc_auc.png" alt="Fig.7" width="500">
 </p>
+
+Fig. 7 The ROC AUC score for the predictive model with molecular data by using ensemble learning.
