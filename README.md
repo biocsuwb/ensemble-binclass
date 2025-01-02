@@ -162,7 +162,62 @@ fs.get_profiler(
 |  1 | GO:MF    | GO:0019811 | cocaine binding                                  | 0.0498746 | True          | "Binding to cocaine (2-beta-carbomethoxy-3-beta-benzoxytropane), an alkaloid obtained from dried leaves of the South American shrub Erythroxylon coca or by chemical synthesis." [GOC:jl, ISBN:0198506732]                                                                                                                                                                                                                      |           1 |            5 |                   1 |                   20212 |         0.2 | 1         | query_1 | ['GO:0043169', 'GO:0097159', 'GO:1901363']               |
 |  2 | GO:MF    | GO:0050785 | advanced glycation end-product receptor activity | 0.0498746 | True          | "Combining with advanced glycation end-products and transmitting the signal to initiate a change in cell activity. Advanced glycation end-products (AGEs) form from a series of chemical reactions after an initial glycation event (a non-enzymatic reaction between reducing sugars and free amino groups of proteins)." [GOC:signaling, PMID:12453678, PMID:12707408, PMID:7592757, PMID:9224812, Wikipedia:RAGE_(receptor)] |           1 |            5 |                   1 |                   20212 |         0.2 | 1         | query_1 | ['GO:0038023']                                           |
  
-## Example 2 - Construct the predictive model with molecular data by using ensemble learning
+## Example 2 - Construct the predictive model with molecular data by using basic classifiers
+
+### Required parameters
+- X, variables (pd.DataFrame) ***X=X***;
+- y, target (pd.Series) ***y=y***;
+- features, list of feature sets (list) ***features=[relieff_features.features, lasso_features.features,]***;
+- classifiers, list of classifiers (list) ***classifiers=['adaboost', 'random_forest', 'svm',]***;
+- cv, cross-validation method (str) ***cv='stratified_k_fold'***;
+- repetitions, number of repetitions (int) ***repetitions=10***;
+
+### Optional parameters
+- classifier_params, classifiers hyperparameters (list of dicts) ***classifier_params=[{'adaboost': {'n_estimators': 100, 'learning_rate': 0.9,}}, {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,}}, {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},]***;
+- cv_params, cross-validation method hyperparameters (dict) ***cv_params={'n_splits': 10}***;
+
+### Construct the predictive model with molecular data by using basic classifiers
+
+```python
+clf = cl.Classifier(
+    X,
+    y,
+    features=[relieff_features.features, lasso_features.features,],
+    classifiers=['svm', 'adaboost', 'random_forest',],
+    classifier_params=[
+        {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},
+        {'adaboost': {'n_estimators': 100, 'learning_rate': 0.9}},
+        {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None}},
+    ],
+    cv='stratified_k_fold',
+    cv_params={'n_splits': 10},
+    repetitions=10,
+) 
+```
+
+#### Get model metrics
+```python
+clf.all_metrics()
+```
+
+```console
+["ACC: {'RELIEFF_SVM': [0.987, 0.015], 'RELIEFF_ADABOOST': [0.994, 0.011], 'RELIEFF_RANDOM_FOREST': [0.99, 0.013], 'LASSO_SVM': [0.995, 0.009], 'LASSO_ADABOOST': [0.992, 0.012], 'LASSO_RANDOM_FOREST': [0.99, 0.014]}",
+ "Roc Auc: {'RELIEFF_SVM': [0.978, 0.038], 'RELIEFF_ADABOOST': [0.991, 0.023], 'RELIEFF_RANDOM_FOREST': [0.971, 0.048], 'LASSO_SVM': [0.99, 0.026], 'LASSO_ADABOOST': [0.982, 0.033], 'LASSO_RANDOM_FOREST': [0.971, 0.049]}",
+ "F1 score: {'RELIEFF_SVM': [0.993, 0.008], 'RELIEFF_ADABOOST': [0.996, 0.006], 'RELIEFF_RANDOM_FOREST': [0.994, 0.007], 'LASSO_SVM': [0.997, 0.005], 'LASSO_ADABOOST': [0.996, 0.007], 'LASSO_RANDOM_FOREST': [0.994, 0.008]}",
+ "MCC: {'RELIEFF_SVM': [0.938, 0.072], 'RELIEFF_ADABOOST': [0.969, 0.051], 'RELIEFF_RANDOM_FOREST': [0.945, 0.07], 'LASSO_SVM': [0.973, 0.047], 'LASSO_ADABOOST': [0.961, 0.06], 'LASSO_RANDOM_FOREST': [0.945, 0.076]}"]
+```
+
+#### Visualization of the model metrics
+
+```python
+clf.plot_roc_auc()
+```
+
+<p align="center">
+    <img src="Images/clf_roc_auc.png" alt="Fig.3" width="500">
+</p>
+
+## Example 3 - Construct the predictive model with molecular data by using ensemble learning
 
 ### Ensemble configuration parameters
 
@@ -270,7 +325,7 @@ ens_voting.plot_roc_auc()
 ```
 
 <p align="center">
-    <img src="Images/ens_voting_roc_auc.png" alt="Fig.4" width="500">
+    <img src="Images/ens_voting_roc_auc.png" alt="Fig.5" width="500">
 </p>
 
 ### Bagging ensemble learning
@@ -319,5 +374,5 @@ ens_bagging.plot_roc_auc()
 ```
 
 <p align="center">
-    <img src="Images/ens_bagging_roc_auc.png" alt="Fig.4" width="500">
+    <img src="Images/ens_bagging_roc_auc.png" alt="Fig.6" width="500">
 </p>
