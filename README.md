@@ -79,7 +79,7 @@ Fig.3 Challenges in analysing molecular data.
 7. Perform hyperparameter optimization for classifier algorithm
 8. Construct diagnosis system using the best classifier 
 
-## Example 1 - Construct the predictive model with molecular data by using one of eight basic classifiers
+## Example 1 - Construct the predictive model with molecular data by using one of eight individual classifiers
 ### Load and check correctness of example data
 ```python
 pr = pre.DataPreprocessing()
@@ -166,7 +166,7 @@ fs.get_profiler(
  
 Table 1. The g:Profiler results for the top 5 features selected by the LASSO method.
 
-## Example 2 - Construct the predictive model with molecular data by using basic classifiers
+## Example 2 - Construct the predictive model with molecular data by using individual classifiers
 
 ### Required parameters
 - X, variables (pd.DataFrame) ***X=X***;
@@ -180,7 +180,7 @@ Table 1. The g:Profiler results for the top 5 features selected by the LASSO met
 - classifier_params, classifiers hyperparameters (list of dicts) ***classifier_params=[{'adaboost': {'n_estimators': 100, 'learning_rate': 0.9,}}, {'random_forest': {'n_estimators': 100, 'criterion': 'gini', 'max_depth': None,}}, {'svm': {'C': 1, 'kernel': 'linear', 'gamma': 'auto'}},]***;
 - cv_params, cross-validation method hyperparameters (dict) ***cv_params={'n_splits': 10}***;
 
-### Construct the predictive model with molecular data by using basic classifiers
+### Construct the predictive model with molecular data by using individual classifiers
 
 ```python
 clf = cl.Classifier(
@@ -221,7 +221,7 @@ clf.plot_roc_auc()
     <img src="Images/clf_roc_auc.png" alt="Fig.4" width="500">
 </p>
 
-Fig. 4 The ROC AUC score for the predictive model with molecular data by using basic classifiers.
+Fig. 4 The ROC AUC score for the predictive model with molecular data by using individual classifiers.
 
 ## Example 3 - Construct the predictive model with molecular data by using ensemble learning
 
