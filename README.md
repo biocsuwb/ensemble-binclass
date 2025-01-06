@@ -31,18 +31,27 @@ Fig.2 Flowchart of ensemble learning.
 
 ## The package consists of the following components:
 
+| Component          | Description                                                                        |
+|--------------------|------------------------------------------------------------------------------------|   
+| preprocessing      | load, prepare, normalization and remove collinear features                         |  
+| featureSelection   | top k features thought FS methods: LASSO, ReliefF, MRMR and U-test                 |
+| modelEvaluation    | cross-validation algorithms: hold out, k-fold, stratified k-fold and leave one out |
+| classifier         | individual classifiers: ADA, GB, RF, kNN, DT, ET, SVM and XGB                      |
+| ensemble           | ensemble classifiers: voting, stacking and boosting                                |
+| performanceMetrics | model performance metrics: ACC, ROC AUC, F1-score, MCC and MSE                     | 
+
+### Install the development version from GitHub:
+To install this package, clone the repository and install with pip:
+```shell
+git clone https://github.com/biocsuwb/ensemble-binclass.git
+```
+
 ### Install required packages
 To install required packages, run the following command:
 ```shell
 pip install -r ./requirements.txt
 ```
 
-### Install the development version from GitHub:
-To install this package, clone the repository and install with pip:
-```python
-install.packages("ensemble-binclass")
-devtools::install_github("biocsuwb/ensemble-binclass")
-```
 ### Install the development version from PyPi repository:
 
 ```python
@@ -81,6 +90,13 @@ Fig.3 Challenges in analysing molecular data.
 
 ## Example 1 - Construct the predictive model with molecular data by using one of eight individual classifiers
 ### Load and check correctness of example data
+
+#### Load data parameters
+- path, path to the data file (str) ***path='test_data/exampleData_TCGA_LUAD_2000.csv'***;
+- index_col, is data contains index column (bool) ***index_col=False***;
+- encode, is data should be encoded (bool) ***encode=False***;
+- sep, separator in the data file (str) ***sep=','***;
+
 ```python
 pr = pre.DataPreprocessing()
 pr.load_data('test_data/exampleData_TCGA_LUAD_2000.csv')
@@ -88,12 +104,16 @@ pr.show_data()
 ```
 ### Prepare omic data for machine learning
 
-#### Choose target column 
+#### Choose target column parameters
+- target, target column name (str) ***target='class'*** ;
+
 ```python
 X, y = pr.set_target('class')
 ```
 
-#### Remove collinear features throught the Spearman correlation matrix
+#### Remove collinear features throught the Spearman correlation matrix parameters
+- threshold, threshold for the Spearman correlation matrix (float) ***threshold=0.75*** ;
+
 ```python
 pr.remove_collinear_features(threshold=0.75)
 ```
