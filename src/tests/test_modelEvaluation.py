@@ -1,5 +1,5 @@
-import src.ensemble_binclass.preprocessing as preprocessing
-import src.ensemble_binclass.modelEvaluation as modelEvaluation
+import src.binclass.preprocessing as preprocessing
+import src.binclass.modelEvaluation as modelEvaluation
 from math import floor, ceil
 
 pr = preprocessing.DataPreprocessing()

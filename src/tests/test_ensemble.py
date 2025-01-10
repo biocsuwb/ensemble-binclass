@@ -1,8 +1,8 @@
 import numpy as np
 
-import src.ensemble_binclass.preprocessing as preprocessing
-import src.ensemble_binclass.ensemble as ensemble
-import src.ensemble_binclass.featureSelection as featureSelection
+import src.binclass.preprocessing as preprocessing
+import src.binclass.ensemble as ensemble
+import src.binclass.featureSelection as featureSelection
 
 np.seterr(divide='ignore')
 
