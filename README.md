@@ -48,6 +48,7 @@ git clone https://github.com/biocsuwb/ensemble-binclass.git
 ### Required packages
 pandas 2.2.0, scikit-learn 1.5.2, xgboost 2.0.3, numpy 1.26.3, ReliefF 0.1.2, scipy 1.12.0, mrmr-selection 0.2.8, matplotlib 3.8.2, pytest 8.1.1, pytest-cov 4.1.0,
 seaborn 0.13.2, and gprofiler 1.2.2
+
 ### Install required packages
 To install required packages, run the following command:
 ```shell
