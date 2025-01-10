@@ -1,5 +1,5 @@
 import numpy as np
-import ensbinclass.preprocessing as preprocessing
+import src as preprocessing
 
 pr = preprocessing.DataPreprocessing()
 pr.load_data('../../test_data/exampleData_TCGA_LUAD_2000.csv')
