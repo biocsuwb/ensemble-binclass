@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ensemble-binclass"
-version = "1.0.0"
+version = "1.0.7"
 description = "Feature selection and ensemble classification"
 authors = [{name = "Szymon Kolodziejski", email = "koodziejskisz@outlook.com"}]
 license = { file = "LICENSE" }
@@ -27,11 +27,16 @@ dependencies = [
     "pytest-cov~=6.0.0",
     "seaborn~=0.13.0",
     "gprofiler-official~=0.3.5",
+    "pypandoc~=1.15.0",
 ]
 requires-python = ">=3.9"
+readme = "README.md"
+
+[project.urls]
+source = "https://github.com/biocsuwb/ensemble-binclass"
 
 [tool.bumpver]
-current_version = "1.0.0"
+current_version = "1.0.7"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 tag_message = "{new_version}"
@@ -40,7 +45,10 @@ pre_commit_hook = ""
 post_commit_hook = ""
 commit = true
 tag = true
-push = false
+push = true
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.md"] }
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = [
@@ -50,8 +58,3 @@ push = false
     "{version}",
     "{pep440_version}",
 ]
-"README.md" = [
-    "{version}",
-    "{pep440_version}",
-]
-
