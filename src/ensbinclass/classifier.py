@@ -1,9 +1,9 @@
 import time
-
 import numpy as np
 import pandas as pd
-import modelEvaluation
-from performanceMetrics import PerformanceMetrics
+
+from ensbinclass.modelEvaluation import ModelEvaluation
+from ensbinclass.performanceMetrics import PerformanceMetrics
 from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier, \
     RandomForestClassifier
 from sklearn.svm import SVC
@@ -36,7 +36,7 @@ class Classifier:
                 X_ = self.X[feature_set]
                 self.fs = feature_set.name
 
-                me = modelEvaluation.ModelEvaluation(X_, self.y)
+                me = ModelEvaluation(X_, self.y)
 
                 match self.cross_validation:
                     case 'hold_out':
