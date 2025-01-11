@@ -239,10 +239,7 @@ clf.all_metrics()
 ```python
 clf.plot_roc_auc()
 ```
-
-<p align="center">
-    <img src="Images/clf_roc_auc.png" alt="Fig.4" width="500">
-</p>
+![Fig.4](https://github.com/biocsuwb/ensemble-binclass/blob/b7ba0b130c8f170ec2c9723436a82c2a5916b5b0/Images/clf_roc_auc.png?raw=true)
 
 Fig. 4 The ROC AUC score for the predictive model with molecular data by using individual classifiers.
 
@@ -305,9 +302,7 @@ ens_stacking.all_metrics()
 ens_stacking.plot_roc_auc()
 ```
 
-<p align="center">
-    <img src="Images/ens_stacking_roc_auc.png" alt="Fig.5", width="500">
-</p>
+![Fig.5](https://github.com/biocsuwb/ensemble-binclass/blob/b7ba0b130c8f170ec2c9723436a82c2a5916b5b0/Images/ens_stacking_roc_auc.png?raw=true)
 
 Fig. 5 The ROC AUC score for the predictive model with molecular data by using ensemble learning.
 
@@ -354,9 +349,7 @@ ens_voting.all_metrics()
 ens_voting.plot_roc_auc()
 ```
 
-<p align="center">
-    <img src="Images/ens_voting_roc_auc.png" alt="Fig.6" width="500">
-</p>
+![Fig.6](https://github.com/biocsuwb/ensemble-binclass/blob/b7ba0b130c8f170ec2c9723436a82c2a5916b5b0/Images/ens_voting_roc_auc.png?raw=true)
 
 Fig. 6 The ROC AUC score for the predictive model with molecular data by using ensemble learning.
 
@@ -404,9 +397,6 @@ ens_bagging.all_metrics()
 ```python
 ens_bagging.plot_roc_auc()
 ```
-
-<p align="center">
-    <img src="Images/ens_bagging_roc_auc.png" alt="Fig.7" width="500">
-</p>
+![Fig.7](https://github.com/biocsuwb/ensemble-binclass/blob/b7ba0b130c8f170ec2c9723436a82c2a5916b5b0/Images/ens_bagging_roc_auc.png?raw=true)
 
 Fig. 7 The ROC AUC score for the predictive model with molecular data by using ensemble learning.
