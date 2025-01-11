@@ -4,21 +4,6 @@ from sklearn.linear_model import Lasso
 from ReliefF import ReliefF
 from mrmr import mrmr_classif
 from scipy.stats import mannwhitneyu
-from gprofiler import GProfiler
-
-
-def get_profile(return_dataframe: bool = True, organism: str = 'hsapiens', query: list | pd.Series = None):
-    gp = GProfiler(
-        return_dataframe=return_dataframe,
-    )
-
-    if isinstance(query, pd.Series):
-        query = query.tolist()
-
-    return gp.profile(
-        organism=organism,
-        query=query,
-    )
 
 
 class FeatureSelection:
