@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ensemble-binclass"
-version = "1.0.9"
+version = "1.0.10"
 description = "Feature selection and ensemble classification"
 authors = [{name = "Szymon Kołodziejski", email = "koodziejskisz@outlook.com"}]
 license = { file = "LICENSE" }
