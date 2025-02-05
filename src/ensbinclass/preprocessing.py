@@ -22,19 +22,9 @@ class DataPreprocessing:
         else:
             raise ValueError('Unsupported file extension, must be .csv or .txt file')
 
-        if not self.data.select_dtypes(exclude=['number']).columns.empty:
-            cols = self.data.select_dtypes(exclude=['number']).columns
-            print("Non numeric columns:", cols)
-            for col in cols:
-                try:
-                    self.data[col] = self.data[col].str.replace(',', '.')
-                    self.data[col] = self.data[col].astype(float)
-                except ValueError:
-                    print("Non numeric columns could not be converted to numeric")
-
-            if encode:
-                for col in cols:
-                    self.one_hot_encoder(col)
+        if encode:
+            for col in self.data.columns:
+                self.one_hot_encoder(col)
         else:
             print("All columns are numeric")
 
