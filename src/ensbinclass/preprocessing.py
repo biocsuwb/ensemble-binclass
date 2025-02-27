@@ -22,7 +22,7 @@ class DataPreprocessing:
         else:
             raise ValueError('Unsupported file extension, must be .csv or .txt file')
 
-        self.data = self.data.applymap(lambda x: str(x).replace(',', '.') if isinstance(x, str) else x)
+        self.data = self.data.applymap(lambda x: float(str(x).replace(',', '.')) if isinstance(x, str) else x)
 
         if encode:
             for col in self.data.columns:
