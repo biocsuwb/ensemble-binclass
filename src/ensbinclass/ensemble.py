@@ -115,7 +115,7 @@ class Ensemble:
                 verbose=kwargs.get('verbose', False),
             )
             Voting.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(Voting.predict(self.X_test[fold]))
+            predict_proba.append(Voting.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
 
@@ -144,7 +144,7 @@ class Ensemble:
                 verbose=kwargs.get('verbose', 0),
             )
             bagging.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(bagging.predict(self.X_test[fold]))
+            predict_proba.append(bagging.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
 
@@ -169,7 +169,7 @@ class Ensemble:
                 verbose=kwargs.get('verbose', 0),
             )
             stacking.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(stacking.predict(self.X_test[fold]))
+            predict_proba.append(stacking.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
 

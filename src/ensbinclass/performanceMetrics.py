@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score, roc_auc_score, f1_score, \
-    matthews_corrcoef, mean_squared_error
+    matthews_corrcoef
 from collections import defaultdict
 
 
@@ -54,7 +54,7 @@ class PerformanceMetrics:
             acc = []
             if self.fold != 1:
                 for f in range(self.fold):
-                    acc.append(accuracy_score(self.y_test[f], self.y_pred[classifier][f]))
+                    acc.append(accuracy_score(self.y_test[f], np.argmax(self.y_pred[classifier][f], axis=1).tolist()))
                 acc_dict[base_name].extend(acc)
             else:
                 acc_dict[base_name].append(accuracy_score(self.y_test, self.y_pred))
@@ -73,7 +73,7 @@ class PerformanceMetrics:
             roc_auc = []
             if self.fold != 1:
                 for f in range(self.fold):
-                    roc_auc.append(roc_auc_score(self.y_test[f], self.y_pred[classifier][f]))
+                    roc_auc.append(roc_auc_score(self.y_test[f], np.argmax(self.y_pred[classifier][f], axis=1).tolist()))
                 roc_auc_dict[base_name].extend(roc_auc)
             else:
                 roc_auc_dict[base_name].append(roc_auc_score(self.y_test, self.y_pred[classifier]))
@@ -92,7 +92,7 @@ class PerformanceMetrics:
             f_score = []
             if self.fold != 1:
                 for f in range(self.fold):
-                    f_score.append(f1_score(self.y_test[f], self.y_pred[classifier][f]))
+                    f_score.append(f1_score(self.y_test[f], np.argmax(self.y_pred[classifier][f], axis=1).tolist()))
                 f1_score_dict[base_name].extend(f_score)
             else:
                 f1_score_dict[base_name].append(f1_score(self.y_test, self.y_pred))
@@ -111,7 +111,7 @@ class PerformanceMetrics:
             mc = []
             if self.fold != 1:
                 for f in range(self.fold):
-                    mc.append(matthews_corrcoef(self.y_test[f], self.y_pred[classifier][f]))
+                    mc.append(matthews_corrcoef(self.y_test[f], np.argmax(self.y_pred[classifier][f], axis=1).tolist()))
                 matthews_corrcoef_dict[base_name].extend(mc)
             else:
                 matthews_corrcoef_dict[base_name].append(matthews_corrcoef(self.y_test, self.y_pred))
@@ -130,16 +130,17 @@ class PerformanceMetrics:
             mc = []
             if self.fold != 1:
                 for f in range(self.fold):
-                    mc.append(mean_squared_error(self.y_test[f], self.y_pred[classifier][f]))
+                    pred_probs = self.y_pred[classifier][f]
+                    true_labels = self.y_test[f]
+                    pred_class_prob = pred_probs[np.arange(len(true_labels)), true_labels]
+                    mc.append(np.std(pred_class_prob - true_labels) ** 2)
                 mean_squared_error_dict[base_name].extend(mc)
             else:
-                mean_squared_error_dict[base_name].append(mean_squared_error(self.y_test, self.y_pred))
+                pass
 
-        mean_dict = {classifier: round(np.mean(values), 3) for classifier, values in mean_squared_error_dict.items()}
-        sd_dict = {classifier: round(np.std(values), 3) for classifier, values in mean_squared_error_dict.items()}
-        combined_dict = {classifier: [mean_dict[classifier], sd_dict[classifier]] for classifier in mean_dict}
+        mean_dict = {classifier: np.mean(values) for classifier, values in mean_squared_error_dict.items()}
 
-        return "MCC: " + str(combined_dict), mean_squared_error_dict
+        return "MSE: " + str(mean_dict), mean_squared_error_dict
 
     def plot_acc(self):
         scores_dict = self.accuracy_score()[1]
@@ -225,7 +226,8 @@ class PerformanceMetrics:
             self.accuracy_score()[0],
             self.roc_auc()[0],
             self.f1_score()[0],
-            self.matthews_corrcoef()[0]
+            self.matthews_corrcoef()[0],
+            self.mean_squared_error()[0]
         ]
 
     def plot_all(self):

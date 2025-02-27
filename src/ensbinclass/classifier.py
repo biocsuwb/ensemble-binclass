@@ -92,8 +92,8 @@ class Classifier:
                 algorithm=kwargs.get('algorithm', 'SAMME'),
                 random_state=kwargs.get('random_state', None),
             )
-            adaboostClf_f = adaboostClf.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(adaboostClf_f.predict(self.X_test[fold]))
+            adaboostClf.fit(self.X_train[fold], self.y_train[fold])
+            predict_proba.append(adaboostClf.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
         self.time['adaboost'] = end_time - start_time
@@ -127,8 +127,8 @@ class Classifier:
                 tol=kwargs.get('tol', 1e-4),
                 ccp_alpha=kwargs.get('ccp_alpha', 0.0),
             )
-            gboostClf_f = gboostClf.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(gboostClf_f.predict(self.X_test[fold]))
+            gboostClf.fit(self.X_train[fold], self.y_train[fold])
+            predict_proba.append(gboostClf.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
         self.time['gradient boosting'] = end_time - start_time
@@ -161,8 +161,8 @@ class Classifier:
                 max_samples=kwargs.get('max_samples', None),
                 monotonic_cst=kwargs.get('monotonic_cst', None),
             )
-            randomForestClf_f = randomForestClf.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(randomForestClf_f.predict(self.X_test[fold]))
+            randomForestClf.fit(self.X_train[fold], self.y_train[fold])
+            predict_proba.append(randomForestClf.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
         self.time['random forest'] = end_time - start_time
@@ -185,7 +185,7 @@ class Classifier:
                 n_jobs=kwargs.get('n_jobs', None),
             )
             kneighborsClf_f = kneighborsClf.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(kneighborsClf_f.predict(self.X_test[fold]))
+            predict_proba.append(kneighborsClf_f.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
         self.time['k nearest neighbors'] = end_time - start_time
@@ -213,7 +213,7 @@ class Classifier:
                 monotonic_cst=kwargs.get('monotonic_cst', None),
             )
             dtreeClf_f = dtreeClf.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(dtreeClf_f.predict(self.X_test[fold]))
+            predict_proba.append(dtreeClf_f.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
         self.time['decision tree'] = end_time - start_time
@@ -246,8 +246,8 @@ class Classifier:
                 max_samples=kwargs.get('max_samples', None),
                 monotonic_cst=kwargs.get('monotonic_cst', None),
             )
-            extraTreeClf_f = extraTreeClf.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(extraTreeClf_f.predict(self.X_test[fold]))
+            extraTreeClf.fit(self.X_train[fold], self.y_train[fold])
+            predict_proba.append(extraTreeClf.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
         self.time['extra trees'] = end_time - start_time
@@ -266,7 +266,7 @@ class Classifier:
                 gamma=kwargs.get('gamma', 'scale'),
                 coef0=kwargs.get('coef0', 0.0),
                 shrinking=kwargs.get('shrinking', True),
-                probability=kwargs.get('probability', False),
+                probability=kwargs.get('probability', True),
                 tol=kwargs.get('tol', 1e-3),
                 cache_size=kwargs.get('cache_size', 200),
                 class_weight=kwargs.get('class_weight', None),
@@ -276,8 +276,8 @@ class Classifier:
                 break_ties=kwargs.get('break_ties', False),
                 random_state=kwargs.get('random_state', None),
             )
-            svmClf_f = svmClf.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(svmClf_f.predict(self.X_test[fold]))
+            svmClf.fit(self.X_train[fold], self.y_train[fold])
+            predict_proba.append(svmClf.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
         self.time['svm'] = end_time - start_time
@@ -313,7 +313,7 @@ class Classifier:
                 missing=kwargs.get('missing', np.nan),
             )
             xgbClf_f = xgbClf.fit(self.X_train[fold], self.y_train[fold])
-            predict_proba.append(xgbClf_f.predict(self.X_test[fold]))
+            predict_proba.append(xgbClf_f.predict_proba(self.X_test[fold]))
 
         end_time = time.time()
         self.time['xgb'] = end_time - start_time
@@ -339,6 +339,10 @@ class Classifier:
     def confusion_matrix(self):
         pm = PerformanceMetrics(self)
         return pm.confusion_matrix()
+
+    def mean_squared_error(self):
+        pm = PerformanceMetrics(self)
+        return pm.mean_squared_error()
 
     def all_metrics(self):
         pm = PerformanceMetrics(self)
