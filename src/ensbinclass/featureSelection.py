@@ -4,6 +4,7 @@ from sklearn.linear_model import Lasso
 from ReliefF import ReliefF
 from mrmr import mrmr_classif
 from scipy.stats import mannwhitneyu
+from statsmodels.stats.multitest import multipletests
 
 
 class FeatureSelection:
@@ -23,7 +24,7 @@ class FeatureSelection:
             case 'mrmr':
                 self.mrmr(**self.params)
             case 'uTest':
-                self.u_test(**self.params)
+                self.u_test()
             case _:
                 raise ValueError('Unknown method')
 
@@ -76,35 +77,33 @@ class FeatureSelection:
         self.features = pd.Series(data=mrmr_features, name="MRMR")
         return self.features
 
-    def u_test(self, **kwargs):
-        data_class1 = self.y
-        data_class2 = self.X
+    def u_test(self):
+        class_0 = self.X[self.y == 0]
+        class_1 = self.X[self.y == 1]
 
-        alpha = 0.05
+        p_values = {}
+        selected_features = []
 
-        p_value_df = pd.DataFrame(index=self.X.columns[:-1], columns=['p_value'])
+        for column in self.X.columns:
+            u_statistic, p_value = mannwhitneyu(class_0[column], class_1[column], alternative='two-sided')
+            p_values[column] = p_value
+            _, p_value_adjusted, _, _ = multipletests(list(p_values.values()), method='fdr_bh')
+            selected_features = [column for column, adjusted_p_value in zip(p_values.keys(), p_value_adjusted) if adjusted_p_value < 0.05]
 
-        def do_utest(i):
-            stat, p_value = mannwhitneyu(
-                data_class1,
-                data_class2.iloc[:, i],
-                use_continuity=kwargs.get('use_continuity', True),
-                alternative=kwargs.get('alternative', 'two-sided'),
-                axis=kwargs.get('axis', 0),
-                method=kwargs.get('method', 'auto'),
-            )
-            p_value_df.loc[self.X.columns[i - 1], 'p_value'] = p_value
-
-        n_features = data_class2.shape[1]
-
-        [do_utest(i) for i in range(n_features)]
-
-        sorted_p_value_df = p_value_df.sort_values(by='p_value', ascending=True)
-
-        utest_features = sorted_p_value_df.loc[sorted_p_value_df['p_value'] < alpha]
-        utest_features = utest_features.index.tolist()[:self.size]
-        self.features = pd.Series(data=utest_features, name="U-TEST")
+        self.features = pd.Series(data=selected_features, name="U-TEST")[:self.size]
         return self.features
+
+    def remove_collinear_features(self, threshold: float = 0.75):
+        col_corr = set()
+        corr_matrix = self.X[self.features].corr("spearman")
+        for i in range(len(corr_matrix.columns)):
+            for j in range(i):
+                if (corr_matrix.iloc[i, j] >= threshold) and (corr_matrix.columns[j] not in col_corr):
+                    colname = corr_matrix.columns[i]
+                    col_corr.add(colname)
+                    if colname in self.X[self.features].columns:
+                        self.X = self.X.drop(colname, axis=1)
+                        self.features = self.features[self.features != colname]
 
     def show_features(self, size: int = 10):
         if size > self.size:
