@@ -63,7 +63,7 @@ class PerformanceMetrics:
         sd_dict = {classifier: round(np.std(values), 3) for classifier, values in acc_dict.items()}
         combined_dict = {classifier: [mean_dict[classifier], sd_dict[classifier]] for classifier in mean_dict}
 
-        return "ACC: " + str(combined_dict), acc_dict
+        return combined_dict, acc_dict
 
     def roc_auc(self):
         roc_auc_dict = defaultdict(list)
@@ -82,7 +82,7 @@ class PerformanceMetrics:
         sd_dict = {classifier: round(np.std(values), 3) for classifier, values in roc_auc_dict.items()}
         combined_dict = {classifier: [mean_dict[classifier], sd_dict[classifier]] for classifier in mean_dict}
 
-        return "Roc Auc: " + str(combined_dict), roc_auc_dict
+        return combined_dict, roc_auc_dict
 
     def f1_score(self):
         f1_score_dict = defaultdict(list)
@@ -101,7 +101,7 @@ class PerformanceMetrics:
         sd_dict = {classifier: round(np.std(values), 3) for classifier, values in f1_score_dict.items()}
         combined_dict = {classifier: [mean_dict[classifier], sd_dict[classifier]] for classifier in mean_dict}
 
-        return "F1 score: " + str(combined_dict), f1_score_dict
+        return combined_dict, f1_score_dict
 
     def matthews_corrcoef(self):
         matthews_corrcoef_dict = defaultdict(list)
@@ -120,27 +120,31 @@ class PerformanceMetrics:
         sd_dict = {classifier: round(np.std(values), 3) for classifier, values in matthews_corrcoef_dict.items()}
         combined_dict = {classifier: [mean_dict[classifier], sd_dict[classifier]] for classifier in mean_dict}
 
-        return "MCC: " + str(combined_dict), matthews_corrcoef_dict
+        return combined_dict, matthews_corrcoef_dict
 
-    def mean_squared_error(self):
+    @staticmethod
+    def mean_squared_error(x):
         mean_squared_error_dict = defaultdict(list)
 
-        for classifier in self.classifiers:
-            base_name = '_'.join(classifier.split('_')[:-1])
-            mc = []
-            if self.fold != 1:
-                for f in range(self.fold):
-                    pred_probs = self.y_pred[classifier][f]
-                    true_labels = self.y_test[f]
-                    pred_class_prob = pred_probs[np.arange(len(true_labels)), true_labels]
-                    mc.append(np.std(pred_class_prob - true_labels) ** 2)
-                mean_squared_error_dict[base_name].extend(mc)
-            else:
-                pass
+        for feature, values in x.items():
+            base_name = '_'.join(feature.split('_')[:-1])
+            mean_squared_error_dict[base_name].append((np.std(values)) ** 2)
 
         mean_dict = {classifier: np.mean(values) for classifier, values in mean_squared_error_dict.items()}
 
-        return "MSE: " + str(mean_dict), mean_squared_error_dict
+        return mean_dict, mean_squared_error_dict
+
+    @staticmethod
+    def std(x):
+        std_dict = defaultdict(list)
+
+        for feature, values in x.items():
+            base_name = '_'.join(feature.split('_')[:-1])
+            std_dict[base_name].append(np.std(values))
+
+        mean_dict = {classifier: np.mean(values) for classifier, values in std_dict.items()}
+
+        return mean_dict, std_dict
 
     def plot_acc(self):
         scores_dict = self.accuracy_score()[1]

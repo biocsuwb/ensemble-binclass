@@ -197,6 +197,14 @@ class Ensemble:
         pm = PerformanceMetrics(self)
         return pm.confusion_matrix()
 
+    def mean_squared_error(self, X):
+        pm = PerformanceMetrics(self)
+        return pm.mean_squared_error(X)
+
+    def std(self, X):
+        pm = PerformanceMetrics(self)
+        return pm.std(X)
+
     def all_metrics(self):
         pm = PerformanceMetrics(self)
         return pm.all_metrics()
