@@ -124,27 +124,14 @@ class PerformanceMetrics:
 
     @staticmethod
     def mean_squared_error(x):
-        mean_squared_error_dict = defaultdict(list)
-
-        for feature, values in x.items():
-            base_name = '_'.join(feature.split('_')[:-1])
-            mean_squared_error_dict[base_name].append((np.std(values)) ** 2)
-
-        mean_dict = {classifier: np.mean(values) for classifier, values in mean_squared_error_dict.items()}
-
-        return mean_dict, mean_squared_error_dict
+        values = [v[0] for v in x.values()]
+        mse = np.std(values) ** 2
+        return mse
 
     @staticmethod
     def std(x):
-        std_dict = defaultdict(list)
-
-        for feature, values in x.items():
-            base_name = '_'.join(feature.split('_')[:-1])
-            std_dict[base_name].append(np.std(values))
-
-        mean_dict = {classifier: np.mean(values) for classifier, values in std_dict.items()}
-
-        return mean_dict, std_dict
+        values = [v[0] for v in x.values()]
+        return np.std(values)
 
     def plot_acc(self):
         scores_dict = self.accuracy_score()[1]
