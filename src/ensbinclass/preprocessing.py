@@ -9,7 +9,7 @@ class DataPreprocessing:
         self.X = None
         self.y = None
 
-    def load_data(self, path: str, index_col: bool = False, encode: bool = False, sep: str = ','):
+    def load_data(self, path: str, index_col: bool = False, encode: bool = False, sep: str = ';'):
         file_extension = os.path.splitext(path)[1]
 
         if file_extension == '.csv':
