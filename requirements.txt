@@ -18,8 +18,6 @@ cycler==0.12.1
     # via matplotlib
 fonttools==4.55.3
     # via matplotlib
-gprofiler-official==0.3.5
-    # via ensemble-binclass (pyproject.toml)
 iniconfig==2.0.0
     # via pytest
 jinja2==3.1.5
