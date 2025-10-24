@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score, roc_auc_score, f1_score, \
-    matthews_corrcoef
+    matthews_corrcoef, precision_score
 from collections import defaultdict
 
 
@@ -122,11 +122,24 @@ class PerformanceMetrics:
 
         return combined_dict, matthews_corrcoef_dict
 
-    @staticmethod
-    def mean_squared_error(x):
-        values = [v[0] for v in x.values()]
-        mse = np.std(values) ** 2
-        return mse
+    def precision_score(self):
+        precision_score_dict = defaultdict(list)
+
+        for classifier in self.classifiers:
+            base_name = '_'.join(classifier.split('_')[:-1])
+            mc = []
+            if self.fold != 1:
+                for f in range(self.fold):
+                    mc.append(precision_score(self.y_test[f], np.argmax(self.y_pred[classifier][f], axis=1).tolist()))
+                precision_score_dict[base_name].extend(mc)
+            else:
+                precision_score_dict[base_name].append(precision_score(self.y_test, self.y_pred))
+
+        mean_dict = {classifier: round(np.mean(values), 3) for classifier, values in precision_score_dict.items()}
+        sd_dict = {classifier: round(np.std(values), 3) for classifier, values in precision_score_dict.items()}
+        combined_dict = {classifier: [mean_dict[classifier], sd_dict[classifier]] for classifier in mean_dict}
+
+        return combined_dict, precision_score_dict
 
     @staticmethod
     def std(x):
@@ -185,6 +198,19 @@ class PerformanceMetrics:
 
         plt.show()
 
+    def plot_precision_score(self):
+        scores_dict = self.precision_score()[1]
+
+        plt.figure(figsize=(10, 6))
+        sns.boxplot(data=list(scores_dict.values()), palette='hls')
+        plt.xticks(ticks=range(len(scores_dict)), labels=list(scores_dict.keys()), rotation=90)
+        plt.ylabel('Precision score')
+        plt.title(f'Box plot of classifiers Precision Score')
+        plt.grid(True)
+        sns.set_theme()
+
+        plt.show()
+
     def plot_classifier_time(self):
         sorted_results = sorted(zip(self.time.keys(), self.time.values()), key=lambda x: x[1], reverse=False)
 
@@ -218,11 +244,13 @@ class PerformanceMetrics:
             self.roc_auc()[0],
             self.f1_score()[0],
             self.matthews_corrcoef()[0],
-            self.mean_squared_error()[0]
+            self.precision_score()[0],
         ]
 
     def plot_all(self):
         self.plot_acc(),
         self.plot_roc_auc(),
         self.plot_f1_score(),
-        self.plot_mcc()
+        self.plot_mcc(),
+        self.plot_precision_score(),
+        self.plot_classifier_time(),
