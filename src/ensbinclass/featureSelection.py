@@ -25,6 +25,8 @@ class FeatureSelection:
                 self.mrmr(**self.params)
             case 'uTest':
                 self.u_test()
+            case 'ensemble':
+                self.ensemble()
             case _:
                 raise ValueError('Unknown method')
 
@@ -91,6 +93,21 @@ class FeatureSelection:
             selected_features = [column for column, adjusted_p_value in zip(p_values.keys(), p_value_adjusted) if adjusted_p_value < 0.05]
 
         self.features = pd.Series(data=selected_features, name="U-TEST")[:self.size]
+        return self.features
+
+    def ensemble(self):
+        selected_features = []
+
+        lasso_features = self.lasso(**self.params)
+        relieff_features = self.relieff(**self.params)
+        mrmr_features = self.mrmr(**self.params)
+        u_test = self.u_test()
+
+        selected_features.extend([lasso_features, relieff_features, mrmr_features, u_test])
+        flat_features = [f for sublist in selected_features for f in sublist]
+        unique_features = list(dict.fromkeys(flat_features))
+        self.features = pd.Series(data=unique_features, name="ENSEMBLE")[:self.size]
+
         return self.features
 
     def remove_collinear_features(self, threshold: float = 0.75):
