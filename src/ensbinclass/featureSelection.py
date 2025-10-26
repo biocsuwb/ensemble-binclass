@@ -8,12 +8,15 @@ from statsmodels.stats.multitest import multipletests
 
 
 class FeatureSelection:
-    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str, size: int, params: dict = None):
+    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str, size: int,
+                 efs: bool = False, efs_method: str = 'union', params: dict = None):
         self.X = X
         self.y = y
+        self.efs = efs
+        self.efs_method = efs_method
         self.method = method_
         self.size = size
-        self.features = None
+        self.features = pd.DataFrame()
         self.params = params if params is not None else {}
 
         match self.method:
@@ -25,10 +28,18 @@ class FeatureSelection:
                 self.mrmr(**self.params)
             case 'uTest':
                 self.u_test()
-            case 'ensemble':
-                self.ensemble()
             case _:
                 raise ValueError('Unknown method')
+
+        print("Single FS done")
+
+        if efs:
+            ranking = RankingFeatureSelection(self.X, self.y, self.method,
+                                              self.size, self.features)
+
+            match self.efs_method:
+                case 'union':
+                    self.features = ranking.union()
 
     def lasso(self, **kwargs):
 
@@ -87,27 +98,16 @@ class FeatureSelection:
         selected_features = []
 
         for column in self.X.columns:
-            u_statistic, p_value = mannwhitneyu(class_0[column], class_1[column], alternative='two-sided')
+            u_statistic, p_value = mannwhitneyu(
+                                        class_0[column],
+                                        class_1[column],
+                                        alternative='two-sided')
             p_values[column] = p_value
             _, p_value_adjusted, _, _ = multipletests(list(p_values.values()), method='fdr_bh')
-            selected_features = [column for column, adjusted_p_value in zip(p_values.keys(), p_value_adjusted) if adjusted_p_value < 0.05]
+            selected_features = [column for column, adjusted_p_value in
+                                 zip(p_values.keys(), p_value_adjusted) if adjusted_p_value < 0.05]
 
         self.features = pd.Series(data=selected_features, name="U-TEST")[:self.size]
-        return self.features
-
-    def ensemble(self):
-        selected_features = []
-
-        lasso_features = self.lasso(**self.params)
-        relieff_features = self.relieff(**self.params)
-        mrmr_features = self.mrmr(**self.params)
-        u_test = self.u_test()
-
-        selected_features.extend([lasso_features, relieff_features, mrmr_features, u_test])
-        flat_features = [f for sublist in selected_features for f in sublist]
-        unique_features = list(dict.fromkeys(flat_features))
-        self.features = pd.Series(data=unique_features, name="ENSEMBLE")[:self.size]
-
         return self.features
 
     def remove_collinear_features(self, threshold: float = 0.75):
@@ -126,3 +126,22 @@ class FeatureSelection:
         if size > self.size:
             raise ValueError("size is larger than the list of features")
         print(self.features[:size])
+
+
+class RankingFeatureSelection(FeatureSelection):
+    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str,
+                 size: int, features: pd.DataFrame):
+        super().__init__(X, y, method_, size)
+        self.X = X
+        self.features = features
+
+    def union(self):
+        print(self.features)
+        print("Union staring")
+
+        self.features = pd.DataFrame({
+            'features': np.array(self.X.columns)[:self.size],
+            'importance': np.arange(self.size, 0, -1)
+        })
+
+        return self.features
