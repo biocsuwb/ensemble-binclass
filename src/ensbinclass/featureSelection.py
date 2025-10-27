@@ -8,7 +8,7 @@ from statsmodels.stats.multitest import multipletests
 
 
 class FeatureSelection:
-    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str, size: int,
+    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: list, size: int,
                  efs: bool = False, efs_method: str = 'union', params: dict = None):
         self.X = X
         self.y = y
@@ -16,30 +16,43 @@ class FeatureSelection:
         self.efs_method = efs_method
         self.method = method_
         self.size = size
-        self.features = pd.DataFrame()
+        self.features = None
         self.params = params if params is not None else {}
 
-        match self.method:
-            case 'lasso':
-                self.lasso(**self.params)
-            case 'relieff':
-                self.relieff(**self.params)
-            case 'mrmr':
-                self.mrmr(**self.params)
-            case 'uTest':
-                self.u_test()
-            case _:
-                raise ValueError('Unknown method')
-
-        print("Single FS done")
-
         if efs:
-            ranking = RankingFeatureSelection(self.X, self.y, self.method,
-                                              self.size, self.features)
+            self.ranked_features = None
+            features_ = []
+
+            for method in method_:
+                match method:
+                    case 'lasso':
+                        features_.append(self.lasso(**self.params))
+                    case 'relieff':
+                        features_.append(self.relieff(**self.params))
+                    case 'mrmr':
+                        features_.append(self.mrmr(**self.params))
+                    case 'uTest':
+                        features_.append(self.u_test())
+                    case _:
+                        raise ValueError('Unknown method')
+
+            ranking = RankingFeatureSelection(features_, self.size)
 
             match self.efs_method:
                 case 'union':
-                    self.features = ranking.union()
+                    self.ranked_features, self.features = ranking.union()
+        else:
+            match self.method:
+                case 'lasso':
+                    self.lasso(**self.params)
+                case 'relieff':
+                    self.relieff(**self.params)
+                case 'mrmr':
+                    self.mrmr(**self.params)
+                case 'uTest':
+                    self.u_test()
+                case _:
+                    raise ValueError('Unknown method')
 
     def lasso(self, **kwargs):
 
@@ -129,19 +142,18 @@ class FeatureSelection:
 
 
 class RankingFeatureSelection(FeatureSelection):
-    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str,
-                 size: int, features: pd.DataFrame):
-        super().__init__(X, y, method_, size)
-        self.X = X
-        self.features = features
+    def __init__(self, features_, size):
+        self.features = features_
+        self.size = size
 
     def union(self):
-        print(self.features)
-        print("Union staring")
+        union = list(set().union(*self.features))
 
-        self.features = pd.DataFrame({
-            'features': np.array(self.X.columns)[:self.size],
-            'importance': np.arange(self.size, 0, -1)
+        ranked_features = pd.DataFrame({
+            'features': union,
+            'importance': np.arange(len(union), 0, -1)
         })
 
-        return self.features
+        ensemble_series = pd.Series(union, name='ENSEMBLE')
+
+        return ranked_features, ensemble_series
