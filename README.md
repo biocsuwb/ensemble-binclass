@@ -157,6 +157,7 @@ relieff_features = fs.FeatureSelection(X, y, method_='relieff', size=100, params
 ```python
 mrmr_features = fs.FeatureSelection(X, y, method_='mrmr', size=100, params={'relevance': 'f', 'redundancy': 'c'},)
 ```
+one core: params={'relevance': 'f', 'redundancy': 'c', 'n_jobs': 1}
 
 #### U-TEST hyperparameters
 - params, feature selection method hyperparameters (dict) ***params={'use_continuity': True, 'alternative': 'two-sided', 'axis': 0, 'method': 'auto'}***;
