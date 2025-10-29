@@ -162,12 +162,12 @@ one core: params={'relevance': 'f', 'redundancy': 'c', 'n_jobs': 1}
 #### U-TEST hyperparameters
 - params, feature selection method hyperparameters (dict) ***params={'use_continuity': True, 'alternative': 'two-sided', 'axis': 0, 'method': 'auto'}***;
 
-#### The main multiple testing correction methods ('method' parameter):
--'bonferroni'  Bonferroni correction. Very conservative; divides the significance level α by the number of tests.
--'holm'	 Holm-Bonferroni sequential correction. Less conservative than Bonferroni, adjusts p-values stepwise.
--'fdr_bh' ('auto') Benjamini-Hochberg procedure — controls the False Discovery Rate (FDR), widely used in genomics/proteomics.
--'fdr_by'	 Benjamini-Yekutieli — a more conservative FDR correction that works under dependency among tests.
--'sidak'	 Sidak correction, similar to Bonferroni but slightly less conservative for independent tests.
+**The main multiple testing correction methods ('method' parameter):**
+* 'bonferroni'  Bonferroni correction. Very conservative; divides the significance level α by the number of tests;
+* 'holm'	 Holm-Bonferroni sequential correction. Less conservative than Bonferroni, adjusts p-values stepwise;
+* 'fdr_bh' ('auto') Benjamini-Hochberg procedure — controls the False Discovery Rate (FDR), widely used in genomics/proteomics;
+* 'fdr_by'	 Benjamini-Yekutieli — a more conservative FDR correction that works under dependency among tests;
+* 'sidak'	 Sidak correction, similar to Bonferroni but slightly less conservative for independent tests.
 
 #### Run U-TEST 
 ```python
