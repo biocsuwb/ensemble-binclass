@@ -120,3 +120,5 @@ tzdata==2024.2
     # via pandas
 xgboost==2.0.3
     # via ensemble-binclass (pyproject.toml)
+skrebate==0.62
+    # via ensemble-binclass (pyproject.toml)

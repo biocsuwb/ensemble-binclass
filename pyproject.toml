@@ -26,8 +26,8 @@ dependencies = [
     "pytest~=8.3.0",
     "pytest-cov~=6.0.0",
     "seaborn~=0.13.0",
-    "gprofiler-official~=0.3.5",
     "pypandoc~=1.15.0",
+    "skrebate~=0.62",
 ]
 requires-python = ">=3.9"
 readme = "README.md"
