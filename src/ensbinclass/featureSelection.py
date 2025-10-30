@@ -149,15 +149,9 @@ class FeatureSelection:
 
         _, p_value_adjusted, _, _ = multipletests(feature_p_value['P-value'], method='fdr_bh')
 
-        feature_scores_df = pd.DataFrame({
-            'Feature': feature_p_value['Feature'],
-            'Importance': p_value_adjusted
-        })
-
+        feature_p_value['Importance'] = p_value_adjusted
         self.feature_importance = (
-            feature_scores_df[feature_scores_df['Importance'] < alpha]
-            .sort_values(by='Importance', ascending=True)
-            .reset_index(drop=True)
+            feature_p_value[feature_p_value['Importance'] < alpha]
             .head(self.size)
         )
         self.features = pd.Series(data=self.feature_importance['Feature'], name="U-TEST")
