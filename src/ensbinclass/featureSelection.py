@@ -95,12 +95,11 @@ class FeatureSelection:
         )
         fs.fit(X_array, y_array)
 
-        top_indices = fs.top_features_[:self.size]
-        selected_features = self.X.columns[top_indices].tolist()
-        feature_scores = fs.feature_importances_[:self.size]
-        feature_scores_df = pd.DataFrame({'Feature': selected_features, 'Importance': feature_scores})
-        print("Before sort by importance col:\n", feature_scores_df.head(10))
-        self.feature_importance = feature_scores_df.sort_values(by='Importance', ascending=False)
+        feature_scores = fs.feature_importances_
+        feature_scores_df = pd.DataFrame({'Feature': self.X.columns, 'Importance': feature_scores})
+        feature_scores_df = feature_scores_df.sort_values(by='Importance', ascending=False).reset_index(drop=True)
+        feature_scores_df = feature_scores_df[0:self.size]
+        self.feature_importance = feature_scores_df
         self.features = pd.Series(data=self.feature_importance['Feature'], name="RELIEFF").reset_index(drop=True)
 
         return self.features, self.feature_importance
