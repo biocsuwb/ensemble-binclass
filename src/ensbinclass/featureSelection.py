@@ -123,7 +123,7 @@ class FeatureSelection:
             'Feature': mrmr_features[1].index.to_list()[:self.size],
             'Importance': mrmr_features[1].values[:self.size],
         })
-        self.feature_importance = mrmr_importance.sort_values(by='Importance', ascending=False)
+        self.feature_importance = mrmr_importance.sort_values(by='Importance', ascending=False).reset_index(drop=True)
         self.features = pd.Series(data=self.feature_importance['Feature'], name="MRMR").reset_index(drop=True)
 
         return self.features, self.feature_importance
