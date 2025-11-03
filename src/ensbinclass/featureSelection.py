@@ -1,15 +1,13 @@
 import pandas as pd
-import numpy as np
 from sklearn.linear_model import Lasso
 from skrebate import ReliefF
 from mrmr import mrmr_classif
 from scipy.stats import mannwhitneyu
-from sklearn.preprocessing import MinMaxScaler
 from statsmodels.stats.multitest import multipletests
 
 
 class FeatureSelection:
-    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: list, size: int,
+    def __init__(self, X: pd.DataFrame, y: pd.Series, method_: str, size: int,
                  efs: bool = False, efs_method: str = 'union', params: dict = None):
         self.X = X
         self.y = y
@@ -21,48 +19,17 @@ class FeatureSelection:
         self.params = params if params is not None else {}
         self.feature_importance = None
 
-        if efs:
-            self.ranked_features = None
-            rank_feature_importance = pd.DataFrame()
-
-            for method in method_:
-                match method:
-                    case 'lasso':
-                        _, lasso_df = self.lasso(**self.params)
-                        lasso_df['Method'] = method
-                        rank_feature_importance = pd.concat([rank_feature_importance, lasso_df])
-                    case 'relieff':
-                        _, relieff_df = self.relieff(**self.params)
-                        relieff_df['Method'] = method
-                        rank_feature_importance = pd.concat([rank_feature_importance, relieff_df])
-                    case 'mrmr':
-                        _, mrmr_df = self.mrmr(**self.params)
-                        mrmr_df['Method'] = method
-                        rank_feature_importance = pd.concat([rank_feature_importance, mrmr_df])
-                    case 'uTest':
-                        _, utest_df = self.u_test()
-                        utest_df['Method'] = method
-                        rank_feature_importance = pd.concat([rank_feature_importance, utest_df])
-                    case _:
-                        raise ValueError('Unknown method')
-
-            ranking = RankingFeatureSelection(rank_feature_importance)
-
-            match self.efs_method:
-                case 'union':
-                    self.ranked_features, self.features = ranking.union()
-        else:
-            match self.method[0]:
-                case 'lasso':
-                    self.lasso(**self.params)
-                case 'relieff':
-                    self.relieff(**self.params)
-                case 'mrmr':
-                    self.mrmr(**self.params)
-                case 'uTest':
-                    self.u_test()
-                case _:
-                    raise ValueError('Unknown method')
+        match self.method:
+            case 'lasso':
+                self.lasso(**self.params)
+            case 'relieff':
+                self.relieff(**self.params)
+            case 'mrmr':
+                self.mrmr(**self.params)
+            case 'uTest':
+                self.u_test()
+            case _:
+                raise ValueError('Unknown method')
 
     def lasso(self, **kwargs):
         lasso = Lasso(
