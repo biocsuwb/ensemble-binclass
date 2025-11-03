@@ -52,7 +52,7 @@ class FeatureSelection:
                 case 'union':
                     self.ranked_features, self.features = ranking.union()
         else:
-            match self.method:
+            match self.method[0]:
                 case 'lasso':
                     self.lasso(**self.params)
                 case 'relieff':
@@ -81,6 +81,7 @@ class FeatureSelection:
         top_coefs = coefs.abs().sort_values(ascending=False)[:self.size]
         selected_features = top_coefs.index.tolist()
         self.feature_importance = pd.DataFrame({'Feature': selected_features, 'Importance': top_coefs.values})
+        self.feature_importance.attrs['name'] = "LASSO"
         self.features = pd.Series(self.feature_importance['Feature'], name='LASSO')
 
         return self.features, self.feature_importance
@@ -100,6 +101,7 @@ class FeatureSelection:
         feature_scores_df = feature_scores_df.sort_values(by='Importance', ascending=False).reset_index(drop=True)
         feature_scores_df = feature_scores_df[0:self.size]
         self.feature_importance = feature_scores_df
+        self.feature_importance.attrs['name'] = "RELIEFF"
         self.features = pd.Series(data=self.feature_importance['Feature'], name="RELIEFF").reset_index(drop=True)
 
         return self.features, self.feature_importance
@@ -124,7 +126,7 @@ class FeatureSelection:
             'Feature': mrmr_importances.index.tolist(),
             'Importance': mrmr_importances.values
         })
-
+        self.feature_importance.attrs['name'] = "MRMR"
         self.features = pd.Series(data=self.feature_importance['Feature'], name="MRMR").reset_index(drop=True)
 
         return self.features, self.feature_importance
@@ -154,7 +156,8 @@ class FeatureSelection:
             feature_p_value[feature_p_value['Importance'] < alpha]
             .head(self.size)
         )
-        self.features = pd.Series(data=self.feature_importance['Feature'], name="U-TEST")
+        self.feature_importance.attrs['name'] = "UTEST"
+        self.features = pd.Series(data=self.feature_importance['Feature'], name="UTEST")
 
         return self.features, self.feature_importance
 
@@ -177,53 +180,3 @@ class FeatureSelection:
 
     def get_feature_importance(self):
         return self.feature_importance
-
-
-class RankingFeatureSelection(FeatureSelection):
-    def __init__(self, rank_feature_importance: pd.DataFrame):
-        self.rank_feature_importance = rank_feature_importance.copy()
-        self.rank_feature_importance['Importance'] = pd.to_numeric(self.rank_feature_importance['Importance'],
-                                                                   errors='coerce').fillna(0.0)
-
-    def _normalize_per_method(self) -> pd.DataFrame:
-        df = self.rank_feature_importance.copy()
-
-        def transform_group(g):
-            method = g['Method'].iloc[0]
-            scores = g['Importance'].astype(float).to_numpy()
-
-            if method == 'uTest':
-                eps = 1e-300
-                clipped = np.clip(scores, eps, 1.0)
-                with np.errstate(divide='ignore'):
-                    transformed = -np.log10(clipped)
-            else:
-                transformed = np.array(scores, dtype=float)
-
-            transformed_col = np.asarray(transformed, dtype=float).reshape(-1, 1)
-
-            if transformed_col.size == 0 or np.isclose(transformed_col.min(), transformed_col.max(), rtol=0, atol=0):
-                normalized = np.ones_like(transformed_col, dtype=float)
-            else:
-                scaler = MinMaxScaler(feature_range=(0.0, 1.0))
-                normalized = scaler.fit_transform(transformed_col)
-
-            g = g.assign(Importance=normalized.ravel())
-            return g
-
-        normalized_df = df.groupby('Method', group_keys=False).apply(transform_group).reset_index(drop=True)
-        return normalized_df
-
-    def union(self):
-        normalized_df = self._normalize_per_method()
-
-        ranked_features = (
-            normalized_df
-            .groupby('Feature', sort=False)['Importance']
-            .mean()
-            .sort_values(ascending=False, kind='mergesort')
-        )
-
-        ensemble_series = pd.Series(data=ranked_features.index.to_list(), name='ENSEMBLE')
-
-        return ranked_features, ensemble_series
