@@ -88,11 +88,12 @@ class FeatureSelection:
             show_progress=kwargs.get('show_progress', True),
         )
 
-        mrmr_importances = (mrmr_features[1]).reindex(mrmr_features[0])
+        mrmr_importances = mrmr_features[1].loc[mrmr_features[1].index.isin(mrmr_features[0])]
+
         self.feature_importance = pd.DataFrame({
             'Feature': mrmr_importances.index.tolist(),
             'Importance': mrmr_importances.values
-        })
+        }).sort_values(by='Importance', ascending=False).reset_index(drop=True)
         self.feature_importance.attrs['name'] = "MRMR"
         self.features = pd.Series(data=self.feature_importance['Feature'], name="MRMR").reset_index(drop=True)
 
