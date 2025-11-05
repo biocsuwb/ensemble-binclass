@@ -352,25 +352,33 @@ class Classifier:
 
         return predict_proba
 
-    def f1_score(self):
+    def accuracy(self):
         pm = PerformanceMetrics(self)
-        return pm.f1_score()
-
-    def accuracy_score(self):
-        pm = PerformanceMetrics(self)
-        return pm.accuracy_score()
+        return pm.accuracy()
 
     def roc_auc(self):
         pm = PerformanceMetrics(self)
         return pm.roc_auc()
 
+    def f1_score(self):
+        pm = PerformanceMetrics(self)
+        return pm.f1_score()
+
     def matthews_corrcoef(self):
         pm = PerformanceMetrics(self)
         return pm.matthews_corrcoef()
 
-    def confusion_matrix(self):
+    def precision(self):
         pm = PerformanceMetrics(self)
-        return pm.confusion_matrix()
+        return pm.precision()
+
+    def recall(self):
+        pm = PerformanceMetrics(self)
+        return pm.recall()
+
+    def get_metrics(self):
+        pm = PerformanceMetrics(self)
+        return pm.get_metrics()
 
     def std(self, X):
         pm = PerformanceMetrics(self)
