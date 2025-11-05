@@ -123,7 +123,7 @@ class FeatureSelection:
         self.feature_importance = (
             feature_p_value[feature_p_value['Importance'] < alpha]
             .head(self.size)
-        ).sort_values(by='P-value').reset_index(drop=True)
+        )
         self.feature_importance.attrs['name'] = "UTEST"
         self.features = pd.Series(data=self.feature_importance['Feature'], name="UTEST")
 
