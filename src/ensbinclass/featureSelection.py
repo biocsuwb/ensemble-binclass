@@ -49,7 +49,8 @@ class FeatureSelection:
         selected_features = top_coefs.index.tolist()
         self.feature_importance = pd.DataFrame({'Feature': selected_features, 'Importance': top_coefs.values})
         self.feature_importance.attrs['name'] = "LASSO"
-        self.features = pd.Series(self.feature_importance['Feature'], name='LASSO')
+        self.features = pd.DataFrame({'Feature': self.feature_importance['Feature']})
+        self.features.attrs['name'] = 'LASSO'
 
         return self.features, self.feature_importance
 
@@ -69,7 +70,8 @@ class FeatureSelection:
         feature_scores_df = feature_scores_df[0:self.size]
         self.feature_importance = feature_scores_df
         self.feature_importance.attrs['name'] = "RELIEFF"
-        self.features = pd.Series(data=self.feature_importance['Feature'], name="RELIEFF").reset_index(drop=True)
+        self.features = pd.DataFrame({'Feature': self.feature_importance['Feature']})
+        self.features.attrs['name'] = 'RELIEFF'
 
         return self.features, self.feature_importance
 
@@ -95,7 +97,8 @@ class FeatureSelection:
             'Importance': mrmr_importances.values
         }).sort_values(by='Importance', ascending=False).reset_index(drop=True)
         self.feature_importance.attrs['name'] = "MRMR"
-        self.features = pd.Series(data=self.feature_importance['Feature'], name="MRMR").reset_index(drop=True)
+        self.features = pd.DataFrame({'Feature': self.feature_importance['Feature']})
+        self.features.attrs['name'] = 'MRMR'
 
         return self.features, self.feature_importance
 
@@ -115,17 +118,17 @@ class FeatureSelection:
             p_values.append(p_value)
 
         feature_p_value = pd.DataFrame({'Feature': selected_features, 'P-value': p_values})
-        feature_p_value = feature_p_value.sort_values(by='P-value').reset_index(drop=True)
 
         _, p_value_adjusted, _, _ = multipletests(feature_p_value['P-value'], method='fdr_bh')
 
         feature_p_value['Importance'] = p_value_adjusted
         self.feature_importance = (
-            feature_p_value[feature_p_value['Importance'] < alpha]
+            feature_p_value[feature_p_value['Importance'] <= alpha]
             .head(self.size)
-        )
+        ).sort_values(by='P-value', ascending=False).reset_index(drop=True)
         self.feature_importance.attrs['name'] = "UTEST"
-        self.features = pd.Series(data=self.feature_importance['Feature'], name="UTEST")
+        self.features = pd.DataFrame({'Feature': self.feature_importance['Feature']})
+        self.features.attrs['name'] = 'UTEST'
 
         return self.features, self.feature_importance
 
