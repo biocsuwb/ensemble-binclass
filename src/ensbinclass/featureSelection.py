@@ -121,13 +121,16 @@ class FeatureSelection:
 
         _, p_value_adjusted, _, _ = multipletests(feature_p_value['P-value'], method='fdr_bh')
 
+        feature_p_value = pd.DataFrame({'Feature': selected_features, 'P-value': p_values}).sort_values(by='P-value',
+                                                                                                        ascending=True).reset_index(
+            drop=True)
+        _, p_value_adjusted, _, _ = multipletests(feature_p_value['P-value'], method='fdr_bh')
         feature_p_value['Importance'] = p_value_adjusted
-        self.feature_importance = (
-            feature_p_value[feature_p_value['Importance'] <= alpha]
-            .head(self.size)
-        ).sort_values(by='P-value').reset_index(drop=True)
+        feature_p_value_filtered = feature_p_value[feature_p_value['Importance'] < alpha].reset_index(drop=True)
+
+        self.feature_importance = feature_p_value_filtered
         self.feature_importance.attrs['name'] = "UTEST"
-        self.features = pd.DataFrame({'Feature': self.feature_importance['Feature']})
+        self.features = pd.DataFrame({'Feature': feature_p_value_filtered['Feature']})
         self.features.attrs['name'] = 'UTEST'
 
         return self.features, self.feature_importance
