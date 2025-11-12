@@ -32,3 +32,29 @@ class ModelEvaluation:
             test_index_by_fold.append(test_index)
 
         return train_index_by_fold, test_index_by_fold
+
+    def k_fold(self, **kwargs):
+        kf = KFold(
+            n_splits=kwargs.get('n_splits', 5),
+            shuffle=kwargs.get('shuffle', False),
+            random_state=kwargs.get('random_state', None),
+        )
+
+        train_index_by_fold, test_index_by_fold = [], []
+
+        for i, (train_index, test_index) in enumerate(kf.split(self.X)):
+            train_index_by_fold.append(train_index)
+            test_index_by_fold.append(test_index)
+
+        return train_index_by_fold, test_index_by_fold
+
+    def leave_one_out(self):
+        loo = LeaveOneOut()
+
+        train_index_by_fold, test_index_by_fold = [], []
+
+        for i, (train_index, test_index) in enumerate(loo.split(self.X)):
+            train_index_by_fold.append(train_index)
+            test_index_by_fold.append(test_index)
+
+        return train_index_by_fold, test_index_by_fold
