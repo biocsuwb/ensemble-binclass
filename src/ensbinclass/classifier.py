@@ -1,7 +1,6 @@
 import time
 import numpy as np
 import pandas as pd
-from itertools import chain
 
 from ensbinclass.performanceMetrics import PerformanceMetrics
 from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier, \
@@ -20,71 +19,64 @@ class Classifier:
         self.y = y
         self.train_index = train_index
         self.test_index = test_index
-        features_series = [
-            [
-                pd.Series(df['Feature'], name=df.attrs.get('name', None))
-                for df in group
-            ]
-            for group in df_features
-        ]
-        self.features = list(chain.from_iterable(features_series))
+        self.features = df_features
         self.classifiers_w_params = classifiers_w_params
         self.classifiers = []
         self.predictions = {}
         self.time = {}
         self.y_true = {}
 
-        for i, feature in enumerate(self.features):
+        for i, feature in enumerate(self.features['fs_method']):
             for fold in range(len(self.train_index)):
                 for classifier_w_params in self.classifiers_w_params:
                     for classifier, params in classifier_w_params.items():
                         self.classifiers.append(classifier)
                         match classifier:
                             case 'adaboost':
-                                self.predictions[f'ADABOOST-{i}-{feature.name}-{fold}'] = self.adaboost(fold, **params)
-                                self.y_true[f'ADABOOST-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'ADABOOST-{i}-{feature}-{fold}'] = self.adaboost(fold, i, **params)
+                                self.y_true[f'ADABOOST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case 'gradient_boosting':
-                                self.predictions[f'GRADIENT_BOOSTING-{i}-{feature.name}-{fold}'] = self.gradient_boosting(fold, **params)
-                                self.y_true[f'GRADIENT_BOOSTING-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'GRADIENT_BOOSTING-{i}-{feature}-{fold}'] = self.gradient_boosting(fold, i, **params)
+                                self.y_true[f'GRADIENT_BOOSTING-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case 'random_forest':
-                                self.predictions[f'RANDOM_FOREST-{i}-{feature.name}-{fold}'] = self.random_forest(fold, **params)
-                                self.y_true[f'RANDOM_FOREST-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'RANDOM_FOREST-{i}-{feature}-{fold}'] = self.random_forest(fold, i, **params)
+                                self.y_true[f'RANDOM_FOREST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case 'k_nearest_neighbors':
-                                self.predictions[f'K_NEAREST_NEIGHBORS-{i}-{feature.name}-{fold}'] = self.k_nearest_neighbors(fold, **params)
-                                self.y_true[f'K_NEAREST_NEIGHBORS-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'K_NEAREST_NEIGHBORS-{i}-{feature}-{fold}'] = self.k_nearest_neighbors(fold, i, **params)
+                                self.y_true[f'K_NEAREST_NEIGHBORS-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case 'decision_tree':
-                                self.predictions[f'DECISION_TREE-{i}-{feature.name}-{fold}'] = self.decision_tree(fold, **params)
-                                self.y_true[f'DECISION_TREE-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'DECISION_TREE-{i}-{feature}-{fold}'] = self.decision_tree(fold, i, **params)
+                                self.y_true[f'DECISION_TREE-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case 'extra_trees':
-                                self.predictions[f'EXTRA_TREES-{i}-{feature.name}-{fold}'] = self.extra_trees(fold, **params)
-                                self.y_true[f'EXTRA_TREES-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'EXTRA_TREES-{i}-{feature}-{fold}'] = self.extra_trees(fold, i, **params)
+                                self.y_true[f'EXTRA_TREES-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case 'svm':
-                                self.predictions[f'SVM-{i}-{feature.name}-{fold}'] = self.svm(fold, **params)
-                                self.y_true[f'SVM-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'SVM-{i}-{feature}-{fold}'] = self.svm(fold, i, **params)
+                                self.y_true[f'SVM-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case 'xgboost':
-                                self.predictions[f'XGBOOST-{i}-{feature.name}-{fold}'] = self.xgb(fold, **params)
-                                self.y_true[f'XGBOOST-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'XGBOOST-{i}-{feature}-{fold}'] = self.xgb(fold, i, **params)
+                                self.y_true[f'XGBOOST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case 'all':
-                                self.predictions[f'ADABOOST-{i}-{feature.name}-{fold}'] = self.adaboost(fold, **params)
-                                self.y_true[f'ADABOOST-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'GRADIENT_BOOSTING-{i}-{feature.name}-{fold}'] = self.gradient_boosting(fold, **params)
-                                self.y_true[f'GRADIENT_BOOSTING-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'RANDOM_FOREST-{i}-{feature.name}-{fold}'] = self.random_forest(fold, **params)
-                                self.y_true[f'RANDOM_FOREST-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'K_NEAREST_NEIGHBORS-{i}-{feature.name}-{fold}'] = self.k_nearest_neighbors(fold, **params)
-                                self.y_true[f'K_NEAREST_NEIGHBORS-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'DECISION_TREE-{i}-{feature.name}-{fold}'] = self.decision_tree(fold, **params)
-                                self.y_true[f'DECISION_TREE-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'EXTRA_TREES-{i}-{feature.name}-{fold}'] = self.extra_trees(fold, **params)
-                                self.y_true[f'EXTRA_TREES-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'SVM-{i}-{feature.name}-{fold}'] = self.svm(fold, **params)
-                                self.y_true[f'SVM-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'XGBOOST-{i}-{feature.name}-{fold}'] = self.xgb(fold, **params)
-                                self.y_true[f'XGBOOST-{i}-{feature.name}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'ADABOOST-{i}-{feature}-{fold}'] = self.adaboost(fold, i, **params)
+                                self.y_true[f'ADABOOST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'GRADIENT_BOOSTING-{i}-{feature}-{fold}'] = self.gradient_boosting(fold, i, **params)
+                                self.y_true[f'GRADIENT_BOOSTING-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'RANDOM_FOREST-{i}-{feature}-{fold}'] = self.random_forest(fold, i, **params)
+                                self.y_true[f'RANDOM_FOREST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'K_NEAREST_NEIGHBORS-{i}-{feature}-{fold}'] = self.k_nearest_neighbors(fold, i, **params)
+                                self.y_true[f'K_NEAREST_NEIGHBORS-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'DECISION_TREE-{i}-{feature}-{fold}'] = self.decision_tree(fold, i, **params)
+                                self.y_true[f'DECISION_TREE-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'EXTRA_TREES-{i}-{feature}-{fold}'] = self.extra_trees(fold, i, **params)
+                                self.y_true[f'EXTRA_TREES-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'SVM-{i}-{feature}-{fold}'] = self.svm(fold, i, **params)
+                                self.y_true[f'SVM-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                self.predictions[f'XGBOOST-{i}-{feature}-{fold}'] = self.xgb(fold, i, **params)
+                                self.y_true[f'XGBOOST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
                             case _:
                                 raise ValueError('Invalid classifier name')
 
-    def adaboost(self, fold, **kwargs):
+    def adaboost(self, fold, i, **kwargs):
         start_time = time.time()
 
         predict_proba = []
@@ -95,12 +87,13 @@ class Classifier:
             algorithm=kwargs.get('algorithm', 'SAMME'),
             random_state=kwargs.get('random_state', None),
         )
+
         adaboostClf.fit(
-            self.X.loc[self.train_index[fold], self.features[fold]],
+            self.X.loc[self.train_index[fold], self.features['features'][i]],
             self.y[self.train_index[fold]]
         )
         predict_proba.append(adaboostClf.predict_proba(
-            self.X.loc[self.test_index[fold], self.features[fold]]
+            self.X.loc[self.test_index[fold], self.features['features'][i]]
         ))
 
         end_time = time.time()
@@ -108,7 +101,7 @@ class Classifier:
 
         return predict_proba
 
-    def gradient_boosting(self, fold, **kwargs):
+    def gradient_boosting(self, fold, i, **kwargs):
         start_time = time.time()
 
         predict_proba = []
@@ -135,11 +128,11 @@ class Classifier:
             ccp_alpha=kwargs.get('ccp_alpha', 0.0),
         )
         gboostClf.fit(
-            self.X.loc[self.train_index[fold], self.features[fold]],
+            self.X.loc[self.train_index[fold], self.features['features'][i]],
             self.y[self.train_index[fold]]
         )
         predict_proba.append(gboostClf.predict_proba(
-            self.X.loc[self.test_index[fold], self.features[fold]]
+            self.X.loc[self.test_index[fold], self.features['features'][i]]
         ))
 
         end_time = time.time()
@@ -147,7 +140,7 @@ class Classifier:
 
         return predict_proba
 
-    def random_forest(self, fold, **kwargs):
+    def random_forest(self, fold, i, **kwargs):
         start_time = time.time()
 
         predict_proba = []
@@ -173,11 +166,11 @@ class Classifier:
             monotonic_cst=kwargs.get('monotonic_cst', None),
         )
         randomForestClf.fit(
-            self.X.loc[self.train_index[fold], self.features[fold]],
+            self.X.loc[self.train_index[fold], self.features['features'][i]],
             self.y[self.train_index[fold]]
         )
         predict_proba.append(randomForestClf.predict_proba(
-            self.X.loc[self.test_index[fold], self.features[fold]]
+            self.X.loc[self.test_index[fold], self.features['features'][i]]
         ))
 
         end_time = time.time()
@@ -185,7 +178,7 @@ class Classifier:
 
         return predict_proba
 
-    def k_nearest_neighbors(self, fold, **kwargs):
+    def k_nearest_neighbors(self, fold, i, **kwargs):
         start_time = time.time()
 
         predict_proba = []
@@ -203,7 +196,7 @@ class Classifier:
             self.X.loc[self.train_index[fold], self.features[fold]]
         )
         predict_proba.append(kneighborsClf.predict_proba(
-            self.X.loc[self.test_index[fold], self.features[fold]]
+            self.X.loc[self.test_index[fold], self.features['features'][i]]
         ))
 
         end_time = time.time()
@@ -211,7 +204,7 @@ class Classifier:
 
         return predict_proba
 
-    def decision_tree(self, fold, **kwargs):
+    def decision_tree(self, fold, i, **kwargs):
         start_time = time.time()
 
         predict_proba = []
@@ -231,11 +224,11 @@ class Classifier:
             monotonic_cst=kwargs.get('monotonic_cst', None),
         )
         dtreeClf_f = dtreeClf.fit(
-            self.X.loc[self.train_index[fold], self.features[fold]],
+            self.X.loc[self.train_index[fold], self.features['features'][i]],
             self.y[self.train_index[fold]]
         )
         predict_proba.append(dtreeClf_f.predict_proba(
-            self.X.loc[self.test_index[fold], self.features[fold]]
+            self.X.loc[self.test_index[fold], self.features['features'][i]]
         ))
 
         end_time = time.time()
@@ -243,7 +236,7 @@ class Classifier:
 
         return predict_proba
 
-    def extra_trees(self, fold, **kwargs):
+    def extra_trees(self, fold, i, **kwargs):
         start_time = time.time()
 
         predict_proba = []
@@ -269,7 +262,7 @@ class Classifier:
             monotonic_cst=kwargs.get('monotonic_cst', None),
         )
         extraTreeClf.fit(
-            self.X.loc[self.train_index[fold], self.features[fold]],
+            self.X.loc[self.train_index[fold], self.features['features'][i]],
             self.y[self.train_index[fold]]
         )
 
@@ -278,7 +271,7 @@ class Classifier:
 
         return predict_proba
 
-    def svm(self, fold, **kwargs):
+    def svm(self, fold, i, **kwargs):
         start_time = time.time()
 
         predict_proba = []
@@ -300,11 +293,11 @@ class Classifier:
             random_state=kwargs.get('random_state', None),
         )
         svmClf.fit(
-            self.X.loc[self.train_index[fold], self.features[fold]],
+            self.X.loc[self.train_index[fold], self.features['features'][i]],
             self.y[self.train_index[fold]]
         )
         predict_proba.append(svmClf.predict_proba(
-            self.X.loc[self.test_index[fold], self.features[fold]]
+            self.X.loc[self.test_index[fold], self.features['features'][i]]
         ))
 
         end_time = time.time()
@@ -312,7 +305,7 @@ class Classifier:
 
         return predict_proba
 
-    def xgb(self, fold, **kwargs):
+    def xgb(self, fold, i, **kwargs):
         start_time = time.time()
 
         predict_proba = []
@@ -340,11 +333,11 @@ class Classifier:
             missing=kwargs.get('missing', np.nan),
         )
         xgbClf.fit(
-            self.X.loc[self.train_index[fold], self.features[fold]],
+            self.X.loc[self.train_index[fold], self.features['features'][i]],
             self.y[self.train_index[fold]]
         )
         predict_proba.append(xgbClf.predict_proba(
-            self.X.loc[self.test_index[fold], self.features[fold]]
+            self.X.loc[self.test_index[fold], self.features['features'][i]]
         ))
 
         end_time = time.time()

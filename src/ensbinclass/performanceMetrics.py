@@ -112,11 +112,11 @@ class PerformanceMetrics:
             repeat = int(parts[1])
             feature_name = parts[2]
             fold = int(parts[3])
-            selected_features = self.features[repeat].tolist()
+            selected_features = self.features['features'][repeat]
 
             rows.append({
                 "classifier": classifier,
-                "feature selection": feature_name,
+                "feature_selection": feature_name,
                 "repeat": repeat,
                 "fold": fold,
                 "accuracy": acc_dict.get(model_key),
@@ -126,7 +126,7 @@ class PerformanceMetrics:
             })
 
         return pd.DataFrame(rows, columns=[
-            "classifier", "feature selection",  "repeat", "fold",
+            "classifier", "feature_selection", "repeat", "fold",
             "accuracy", "precision", "recall", "selected_features"
         ])
 
