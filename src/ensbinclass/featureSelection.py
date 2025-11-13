@@ -22,6 +22,7 @@ class FeatureSelection:
         self.features = None
         self.methods_w_params = methods_w_params
         self.feature_importance_list = []
+        self.feature_importance_df = None
         self.feature_stability = None
         self.iterate = 0
 
@@ -198,6 +199,36 @@ class FeatureSelection:
 
         return self.feature_importance_list
 
+    def remove_collinear_features(self, threshold: float = 0.75):
+        col_corr = set()
+        corr_matrix = self.X[self.features].corr("spearman")
+        for i in range(len(corr_matrix.columns)):
+            for j in range(i):
+                if (corr_matrix.iloc[i, j] >= threshold) and (corr_matrix.columns[j] not in col_corr):
+                    colname = corr_matrix.columns[i]
+                    col_corr.add(colname)
+                    if colname in self.X[self.features].columns:
+                        self.X = self.X.drop(colname, axis=1)
+                        self.features = self.features[self.features != colname]
+
+    def show_features(self, size: int = 10):
+        if size > self.size:
+            raise ValueError("size is larger than the list of features")
+        print(self.features[:size])
+
+    def get_feature_importance(self):
+        df_long = pd.concat(self.feature_importance_list, ignore_index=True)
+        self.feature_importance_df = (
+            df_long.groupby(['fs_method', 'fold', 'iter'])
+            .agg({
+                'features': list,
+                'importance': list,
+                'rank': list
+            })
+            .reset_index()
+        )
+        return self.feature_importance_df
+
     def _nogueira_stability(self, Z):
         M, d = Z.shape
         hatPF = np.mean(Z, axis=0)
@@ -206,10 +237,13 @@ class FeatureSelection:
         return 1 - (M / (M - 1)) * np.mean(np.multiply(hatPF, 1 - hatPF)) / denom
 
     def compute_method_stabilities(self):
+        if self.feature_importance_df is None:
+            self.get_feature_importance()
+
         stability = []
 
-        for method in self.feature_importance_list['fs_method'].unique():
-            df_method = self.feature_importance_list[self.feature_importance_list['fs_method'] == method]
+        for method in self.feature_importance_df['fs_method'].unique():
+            df_method = self.feature_importance_df[self.feature_importance_df['fs_method'] == method]
 
             for fold in df_method['fold'].unique():
                 df_fold_subset = df_method[df_method['fold'] <= fold]
@@ -262,33 +296,3 @@ class FeatureSelection:
         self.feature_stability = pd.concat([stability_df, summary_df], ignore_index=True)
 
         return self.feature_stability
-
-    def remove_collinear_features(self, threshold: float = 0.75):
-        col_corr = set()
-        corr_matrix = self.X[self.features].corr("spearman")
-        for i in range(len(corr_matrix.columns)):
-            for j in range(i):
-                if (corr_matrix.iloc[i, j] >= threshold) and (corr_matrix.columns[j] not in col_corr):
-                    colname = corr_matrix.columns[i]
-                    col_corr.add(colname)
-                    if colname in self.X[self.features].columns:
-                        self.X = self.X.drop(colname, axis=1)
-                        self.features = self.features[self.features != colname]
-
-    def show_features(self, size: int = 10):
-        if size > self.size:
-            raise ValueError("size is larger than the list of features")
-        print(self.features[:size])
-
-    def get_feature_importance(self):
-        df_long = pd.concat(self.feature_importance_list, ignore_index=True)
-        df_agg = (
-            df_long.groupby(['fs_method', 'fold', 'iter'])
-            .agg({
-                'features': list,
-                'importance': list,
-                'rank': list
-            })
-            .reset_index()
-        )
-        return df_agg
