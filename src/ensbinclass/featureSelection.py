@@ -1,37 +1,43 @@
+import numpy as np
 import pandas as pd
+
 from sklearn.linear_model import Lasso
+from sklearn.metrics import jaccard_score
 from skrebate import ReliefF
 from mrmr import mrmr_classif
 from scipy.stats import mannwhitneyu
 from statsmodels.stats.multitest import multipletests
+from itertools import combinations
 
 
 class FeatureSelection:
     def __init__(self, X: pd.DataFrame, y: pd.Series, train_index: list = None,
-                 methods: list = None, size: int = 100, params: dict = None):
+                 methods_w_params: list = None, size: int = 100):
         self.X = X
         self.y = y
         self.train_index = train_index
+        if self.train_index is None:
+            self.train_index = [np.array(self.X.index)]
         self.size = size
         self.features = None
-        self.params = params if params is not None else {}
+        self.methods_w_params = methods_w_params
         self.feature_importance = pd.DataFrame(
             columns=['fs_method', 'features', 'importance', 'rank', 'fold', 'iter']
         )
-        self.iter = 0
+        self.feature_stability = None
+        self.iterate = 0
 
-        for method in methods:
-            match method:
-                case 'lasso':
-                    self.lasso(**self.params)
-                case 'relieff':
-                    self.relieff(**self.params)
-                case 'mrmr':
-                    self.mrmr(**self.params)
-                case 'uTest':
-                    self.u_test(**self.params)
-                case _:
-                    raise ValueError('Unknown method')
+        for method_w_params in self.methods_w_params:
+            for method, params in method_w_params.items():
+                match method:
+                    case 'lasso':
+                        self.lasso(**params)
+                    case 'relieff':
+                        self.relieff(**params)
+                    case 'mrmr':
+                        self.mrmr(**params)
+                    case 'uTest':
+                        self.u_test(**params)
 
     def lasso(self, **kwargs):
         for i, train_idx in enumerate(self.train_index):
@@ -55,7 +61,7 @@ class FeatureSelection:
             coefs = pd.Series(lasso.coef_, index=self.X.columns)
             top_coefs = coefs.abs().sort_values(ascending=False)[:self.size]
             selected_features = top_coefs.index.tolist()
-            self.iter += 1
+            self.iterate += 1
 
             features = {
                 'fs_method': 'LASSO',
@@ -63,7 +69,7 @@ class FeatureSelection:
                 'importance': top_coefs.values,
                 'rank': list(range(1, len(selected_features) + 1)),
                 'fold': i,
-                'iter': self.iter,
+                'iter': self.iterate,
             }
 
             self.feature_importance.loc[len(self.feature_importance)] = features
@@ -91,7 +97,7 @@ class FeatureSelection:
                 ascending=False
             ).reset_index(drop=True)
             feature_scores_df = feature_scores_df[0:self.size]
-            self.iter += 1
+            self.iterate += 1
 
             features = {
                 'fs_method': 'RELIEFF',
@@ -99,7 +105,7 @@ class FeatureSelection:
                 'importance': feature_scores_df['Importance'].tolist(),
                 'rank': list(range(1, feature_scores_df.shape[0] + 1)),
                 'fold': i,
-                'iter': self.iter,
+                'iter': self.iterate,
             }
 
             self.feature_importance.loc[len(self.feature_importance)] = features
@@ -127,7 +133,7 @@ class FeatureSelection:
                 'Feature': mrmr_importances.index.tolist(),
                 'Importance': mrmr_importances.values
             }).sort_values(by='Importance', ascending=False).reset_index(drop=True)
-            self.iter += 1
+            self.iterate += 1
 
             features = {
                 'fs_method': 'MRMR',
@@ -135,7 +141,7 @@ class FeatureSelection:
                 'importance': feature_scores_df['Importance'].tolist(),
                 'rank': list(range(1, feature_scores_df.shape[0] + 1)),
                 'fold': i,
-                'iter': self.iter,
+                'iter': self.iterate,
             }
 
             self.feature_importance.loc[len(self.feature_importance)] = features
@@ -176,11 +182,10 @@ class FeatureSelection:
                                .reset_index(drop=True))
             _, p_value_adjusted, _, _ = multipletests(feature_p_value['P-value'], method='fdr_bh')
             feature_p_value['Importance'] = p_value_adjusted
-            feature_p_value_filtered = (feature_p_value[
-                feature_p_value['Importance'] < kwargs.get('alpha', 0.05)]
-                .head(self.size)
-                .reset_index(drop=True))
-            self.iter += 1
+            feature_p_value_filtered = feature_p_value[
+                feature_p_value['Importance'] < kwargs.get('alpha', 0.05)
+            ].reset_index(drop=True)
+            self.iterate += 1
 
             features = {
                 'fs_method': 'UTest',
@@ -188,12 +193,77 @@ class FeatureSelection:
                 'importance': feature_p_value_filtered['Importance'].tolist(),
                 'rank': list(range(1, feature_p_value_filtered.shape[0] + 1)),
                 'fold': i,
-                'iter': self.iter,
+                'iter': self.iterate
             }
 
             self.feature_importance.loc[len(self.feature_importance)] = features
 
         return self.feature_importance
+
+    def _nogueira_stability(self, Z):
+        M, d = Z.shape
+        hatPF = np.mean(Z, axis=0)
+        kbar = np.sum(hatPF)
+        denom = (kbar / d) * (1 - kbar / d)
+        return 1 - (M / (M - 1)) * np.mean(np.multiply(hatPF, 1 - hatPF)) / denom
+
+    def compute_method_stabilities(self):
+        stability = []
+
+        for method in self.feature_importance['fs_method'].unique():
+            df_method = self.feature_importance[self.feature_importance['fs_method'] == method]
+
+            for fold in df_method['fold'].unique():
+                df_fold_subset = df_method[df_method['fold'] <= fold]
+                feature_sets = df_fold_subset['features'].tolist()
+
+                if len(feature_sets) < 2:
+                    jaccard_stability = np.nan
+                    nogueira_stability = np.nan
+                else:
+                    all_features = list(set(f for subset in feature_sets for f in subset))
+                    M = len(feature_sets)
+                    p = len(all_features)
+
+                    selection_matrix = np.zeros((M, p), dtype=int)
+                    feature_index = {f: i for i, f in enumerate(all_features)}
+                    for i, features in enumerate(feature_sets):
+                        for f in features:
+                            selection_matrix[i, feature_index[f]] = 1
+
+                    jaccards = []
+                    for a, b in combinations(range(M), 2):
+                        A, B = selection_matrix[a, :], selection_matrix[b, :]
+                        jaccards.append(jaccard_score(A, B))
+
+                    jaccard_stability = np.mean(jaccards)
+
+                    nogueira_stability = self._nogueira_stability(selection_matrix)
+
+                stability.append({
+                    'fs_method': method,
+                    'fold': fold,
+                    'jaccard_stability': jaccard_stability,
+                    'nogueira_stability': nogueira_stability,
+                    'n_sets_used': len(feature_sets)
+                })
+
+        stability_df = pd.DataFrame(stability)
+
+        summary_df = (
+            stability_df
+            .groupby('fs_method', as_index=False)
+            .agg({
+                'jaccard_stability': 'mean',
+                'nogueira_stability': 'mean'
+            })
+            .assign(fold='mean', n_sets_used='all')
+            [['fs_method', 'fold', 'jaccard_stability', 'nogueira_stability', 'n_sets_used']]
+        )
+
+        self.feature_stability = pd.concat([stability_df, summary_df], ignore_index=True)
+
+        return self.feature_stability
 
     def remove_collinear_features(self, threshold: float = 0.75):
         col_corr = set()
