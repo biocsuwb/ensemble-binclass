@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve, \
     matthews_corrcoef, precision_score, f1_score, auc, RocCurveDisplay, \
@@ -7,128 +6,73 @@ from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve, \
 
 class PerformanceMetrics:
     def __init__(self, classifier):
-        self.y_true = classifier.y_true
-        self.y_pred = classifier.predictions
-        self.classifiers = classifier.classifiers
-        self.features = classifier.features
+        self.results = classifier.results
 
     def confusion_matrix(self):
         pass
 
     def accuracy(self):
-        acc_score_dict = {}
+        acc_lst = []
 
-        for model_name, pred_probs_list in self.y_pred.items():
-            pred_probs = pred_probs_list[0]
-            y_pred_classes = np.argmax(pred_probs, axis=1)
-            model_suffix = model_name
-            y_true_current = self.y_true[model_suffix]
+        for y_pred_prob, y_true in zip(self.results['prediction'], self.results['y_true']):
+            y_pred = np.argmax(y_pred_prob[0], axis=1)
+            acc_lst.append(accuracy_score(y_true, y_pred))
 
-            accuracy = accuracy_score(y_true_current, y_pred_classes)
-            acc_score_dict[model_name] = accuracy
-
-        return acc_score_dict
+        self.results['acc'] = acc_lst
+        return acc_lst
 
     def roc_auc(self):
-        roc_auc_dict = {}
+        roc_auc_lst = []
 
-        for model_name, pred_probs_list in self.y_pred.items():
-            pred_probs = pred_probs_list[0]
-            y_pred_classes = np.argmax(pred_probs, axis=1)
-            y_true_current = self.y_true[model_name]
+        for y_pred_prob, y_true in zip(self.results['prediction'], self.results['y_true']):
+            y_pred = np.argmax(y_pred_prob[0], axis=1)
+            roc_auc_lst.append(roc_auc_score(y_true, y_pred))
 
-            accuracy = roc_auc_score(y_true_current, y_pred_classes)
-            roc_auc_dict[model_name] = accuracy
-
-        return roc_auc_dict
+        self.results['roc_auc'] = roc_auc_lst
+        return roc_auc_lst
 
     def f1_score(self):
-        f1_score_dict = {}
+        f1_score_lst = []
 
-        for model_name, pred_probs_list in self.y_pred.items():
-            pred_probs = pred_probs_list[0]
-            y_pred_classes = np.argmax(pred_probs, axis=1)
-            model_suffix = model_name
-            y_true_current = self.y_true[model_suffix]
+        for y_pred_prob, y_true in zip(self.results['prediction'], self.results['y_true']):
+            y_pred = np.argmax(y_pred_prob[0], axis=1)
+            f1_score_lst.append(f1_score(y_true, y_pred))
 
-            accuracy = f1_score(y_true_current, y_pred_classes)
-            f1_score_dict[model_name] = accuracy
-
-        return f1_score_dict
+        self.results['f1_score'] = f1_score_lst
+        return f1_score_lst
 
     def matthews_corrcoef(self):
-        mcc_dict = {}
+        mcc_lst = []
 
-        for model_name, pred_probs_list in self.y_pred.items():
-            pred_probs = pred_probs_list[0]
-            y_pred_classes = np.argmax(pred_probs, axis=1)
-            model_suffix = model_name
-            y_true_current = self.y_true[model_suffix]
+        for y_pred_prob, y_true in zip(self.results['prediction'], self.results['y_true']):
+            y_pred = np.argmax(y_pred_prob[0], axis=1)
+            mcc_lst.append(matthews_corrcoef(y_true, y_pred))
 
-            accuracy = matthews_corrcoef(y_true_current, y_pred_classes)
-            mcc_dict[model_name] = accuracy
-
-        return mcc_dict
+        self.results['mcc'] = mcc_lst
+        return mcc_lst
 
     def precision(self):
-        precision_score_dict = {}
+        precision_lst = []
 
-        for model_name, pred_probs_list in self.y_pred.items():
-            pred_probs = pred_probs_list[0]
-            y_pred_classes = np.argmax(pred_probs, axis=1)
-            model_suffix = model_name
-            y_true_current = self.y_true[model_suffix]
+        for y_pred_prob, y_true in zip(self.results['prediction'], self.results['y_true']):
+            y_pred = np.argmax(y_pred_prob[0], axis=1)
+            precision_lst.append(precision_score(y_true, y_pred))
 
-            accuracy = precision_score(y_true_current, y_pred_classes)
-            precision_score_dict[model_name] = accuracy
-
-        return precision_score_dict
+        self.results['precision'] = precision_lst
+        return precision_lst
 
     def recall(self):
-        recall_score_dict = {}
+        recall_lst = []
 
-        for model_name, pred_probs_list in self.y_pred.items():
-            pred_probs = pred_probs_list[0]
-            y_pred_classes = np.argmax(pred_probs, axis=1)
-            model_suffix = model_name
-            y_true_current = self.y_true[model_suffix]
+        for y_pred_prob, y_true in zip(self.results['prediction'], self.results['y_true']):
+            y_pred = np.argmax(y_pred_prob[0], axis=1)
+            recall_lst.append(recall_score(y_true, y_pred))
 
-            accuracy = recall_score(y_true_current, y_pred_classes)
-            recall_score_dict[model_name] = accuracy
-
-        return recall_score_dict
+        self.results['recall'] = recall_lst
+        return recall_lst
 
     def get_metrics(self):
-        acc_dict = self.accuracy()
-        precision_dict = self.precision()
-        recall_dict = self.recall()
-
-        rows = []
-        all_keys = set(acc_dict) | set(precision_dict) | set(recall_dict)
-
-        for model_key in sorted(all_keys):
-            parts = model_key.split('-', 3)
-            classifier = parts[0].lower()
-            repeat = int(parts[1])
-            feature_name = parts[2]
-            fold = int(parts[3])
-            selected_features = self.features['features'][repeat]
-
-            rows.append({
-                "classifier": classifier,
-                "feature_selection": feature_name,
-                "repeat": repeat,
-                "fold": fold,
-                "accuracy": acc_dict.get(model_key),
-                "precision": precision_dict.get(model_key),
-                "recall": recall_dict.get(model_key),
-                "selected_features": selected_features,
-            })
-
-        return pd.DataFrame(rows, columns=[
-            "classifier", "feature_selection", "repeat", "fold",
-            "accuracy", "precision", "recall", "selected_features"
-        ])
+        pass
 
     @staticmethod
     def std(x):
@@ -139,12 +83,19 @@ class PerformanceMetrics:
         pass
 
     def plot_roc_auc(self):
-        for model_name, pred_probs_list in self.y_pred.items():
-            pred_probs = pred_probs_list[0]
-            y_pred_classes = np.argmax(pred_probs, axis=1)
+        for y_pred_prob, y_true, classifier, iter, feature_selection, fold \
+                in zip(
+                    self.results['prediction'],
+                    self.results['y_true'],
+                    self.results['classifier'],
+                    self.results['iter'],
+                    self.results['feature_selection'],
+                    self.results['fold'],
+                ):
+            y_pred_classes = np.argmax(y_pred_prob[0], axis=1)
 
             fpr, tpr, thresholds = roc_curve(
-                y_true=self.y_true[model_name],
+                y_true=y_true,
                 y_score=y_pred_classes
             )
             roc_auc = auc(fpr, tpr)
@@ -152,7 +103,11 @@ class PerformanceMetrics:
                 fpr=fpr,
                 tpr=tpr,
                 roc_auc=roc_auc,
-                estimator_name=f'estimator {model_name}'
+                estimator_name=
+                f'estimator {classifier},'
+                f' iter {iter},'
+                f' feature_selection {feature_selection},'
+                f' fold {fold}',
             )
             disp.plot()
 

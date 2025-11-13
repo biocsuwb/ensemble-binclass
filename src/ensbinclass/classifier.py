@@ -22,9 +22,9 @@ class Classifier:
         self.features = df_features
         self.classifiers_w_params = classifiers_w_params
         self.classifiers = []
-        self.predictions = {}
-        self.time = {}
-        self.y_true = {}
+        self.results = pd.DataFrame(
+            columns=['classifier', 'iter', 'feature_selection', 'fold', 'prediction', 'y_true', 'elapsed_time']
+        )
 
         for i, feature in enumerate(self.features['fs_method']):
             for fold in range(len(self.train_index)):
@@ -33,46 +33,229 @@ class Classifier:
                         self.classifiers.append(classifier)
                         match classifier:
                             case 'adaboost':
-                                self.predictions[f'ADABOOST-{i}-{feature}-{fold}'] = self.adaboost(fold, i, **params)
-                                self.y_true[f'ADABOOST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.adaboost(fold, i, **params)
+
+                                result = {
+                                    'classifier': classifier,
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case 'gradient_boosting':
-                                self.predictions[f'GRADIENT_BOOSTING-{i}-{feature}-{fold}'] = self.gradient_boosting(fold, i, **params)
-                                self.y_true[f'GRADIENT_BOOSTING-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.gradient_boosting(fold, i, **params)
+
+                                result = {
+                                    'classifier': classifier,
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case 'random_forest':
-                                self.predictions[f'RANDOM_FOREST-{i}-{feature}-{fold}'] = self.random_forest(fold, i, **params)
-                                self.y_true[f'RANDOM_FOREST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.random_forest(fold, i, **params)
+
+                                result = {
+                                    'classifier': classifier,
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case 'k_nearest_neighbors':
-                                self.predictions[f'K_NEAREST_NEIGHBORS-{i}-{feature}-{fold}'] = self.k_nearest_neighbors(fold, i, **params)
-                                self.y_true[f'K_NEAREST_NEIGHBORS-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.k_nearest_neighbors(fold, i, **params)
+
+                                result = {
+                                    'classifier': classifier,
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case 'decision_tree':
-                                self.predictions[f'DECISION_TREE-{i}-{feature}-{fold}'] = self.decision_tree(fold, i, **params)
-                                self.y_true[f'DECISION_TREE-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.decision_tree(fold, i, **params)
+
+                                result = {
+                                    'classifier': classifier,
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case 'extra_trees':
-                                self.predictions[f'EXTRA_TREES-{i}-{feature}-{fold}'] = self.extra_trees(fold, i, **params)
-                                self.y_true[f'EXTRA_TREES-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.extra_trees(fold, i, **params)
+
+                                result = {
+                                    'classifier': classifier,
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case 'svm':
-                                self.predictions[f'SVM-{i}-{feature}-{fold}'] = self.svm(fold, i, **params)
-                                self.y_true[f'SVM-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.svm(fold, i, **params)
+
+                                result = {
+                                    'classifier': classifier,
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case 'xgboost':
-                                self.predictions[f'XGBOOST-{i}-{feature}-{fold}'] = self.xgb(fold, i, **params)
-                                self.y_true[f'XGBOOST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.xgb(fold, i, **params)
+
+                                result = {
+                                    'classifier': classifier,
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case 'all':
-                                self.predictions[f'ADABOOST-{i}-{feature}-{fold}'] = self.adaboost(fold, i, **params)
-                                self.y_true[f'ADABOOST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'GRADIENT_BOOSTING-{i}-{feature}-{fold}'] = self.gradient_boosting(fold, i, **params)
-                                self.y_true[f'GRADIENT_BOOSTING-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'RANDOM_FOREST-{i}-{feature}-{fold}'] = self.random_forest(fold, i, **params)
-                                self.y_true[f'RANDOM_FOREST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'K_NEAREST_NEIGHBORS-{i}-{feature}-{fold}'] = self.k_nearest_neighbors(fold, i, **params)
-                                self.y_true[f'K_NEAREST_NEIGHBORS-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'DECISION_TREE-{i}-{feature}-{fold}'] = self.decision_tree(fold, i, **params)
-                                self.y_true[f'DECISION_TREE-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'EXTRA_TREES-{i}-{feature}-{fold}'] = self.extra_trees(fold, i, **params)
-                                self.y_true[f'EXTRA_TREES-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'SVM-{i}-{feature}-{fold}'] = self.svm(fold, i, **params)
-                                self.y_true[f'SVM-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
-                                self.predictions[f'XGBOOST-{i}-{feature}-{fold}'] = self.xgb(fold, i, **params)
-                                self.y_true[f'XGBOOST-{i}-{feature}-{fold}'] = self.y[self.test_index[fold]]
+                                prediction, elapsed_time = self.adaboost(fold, i, **params)
+
+                                result = {
+                                    'classifier': 'adaboost',
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
+
+                                prediction, elapsed_time = self.gradient_boosting(fold, i, **params)
+
+                                result = {
+                                    'classifier': 'gradient_boosting',
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
+
+                                prediction, elapsed_time = self.random_forest(fold, i, **params)
+
+                                result = {
+                                    'classifier': 'random_forest',
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
+
+                                prediction, elapsed_time = self.k_nearest_neighbors(fold, i, **params)
+
+                                result = {
+                                    'classifier': 'k_nearest_neighbors',
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
+
+                                prediction, elapsed_time = self.decision_tree(fold, i, **params)
+
+                                result = {
+                                    'classifier': 'decision_tree',
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
+
+                                prediction, elapsed_time = self.extra_trees(fold, i, **params)
+
+                                result = {
+                                    'classifier': 'extra_trees',
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
+
+                                prediction, elapsed_time = self.svm(fold, i, **params)
+
+                                result = {
+                                    'classifier': 'svm',
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
+
+                                prediction, elapsed_time = self.xgb(fold, i, **params)
+
+                                result = {
+                                    'classifier': 'xgboost',
+                                    'iter': i,
+                                    'feature_selection': feature,
+                                    'fold': fold,
+                                    'prediction': prediction,
+                                    'y_true': self.y[self.test_index[fold]],
+                                    'elapsed_time': elapsed_time,
+                                }
+
+                                self.results.loc[len(self.results)] = result
                             case _:
                                 raise ValueError('Invalid classifier name')
 
@@ -97,9 +280,9 @@ class Classifier:
         ))
 
         end_time = time.time()
-        self.time['adaboost'] = end_time - start_time
+        elapsed_time = end_time - start_time
 
-        return predict_proba
+        return predict_proba, elapsed_time
 
     def gradient_boosting(self, fold, i, **kwargs):
         start_time = time.time()
@@ -136,9 +319,9 @@ class Classifier:
         ))
 
         end_time = time.time()
-        self.time['gradient boosting'] = end_time - start_time
+        elapsed_time = end_time - start_time
 
-        return predict_proba
+        return predict_proba, elapsed_time
 
     def random_forest(self, fold, i, **kwargs):
         start_time = time.time()
@@ -174,9 +357,9 @@ class Classifier:
         ))
 
         end_time = time.time()
-        self.time['random forest'] = end_time - start_time
+        elapsed_time = end_time - start_time
 
-        return predict_proba
+        return predict_proba, elapsed_time
 
     def k_nearest_neighbors(self, fold, i, **kwargs):
         start_time = time.time()
@@ -200,9 +383,9 @@ class Classifier:
         ))
 
         end_time = time.time()
-        self.time['k nearest neighbors'] = end_time - start_time
+        elapsed_time = end_time - start_time
 
-        return predict_proba
+        return predict_proba, elapsed_time
 
     def decision_tree(self, fold, i, **kwargs):
         start_time = time.time()
@@ -232,9 +415,9 @@ class Classifier:
         ))
 
         end_time = time.time()
-        self.time['decision tree'] = end_time - start_time
+        elapsed_time = end_time - start_time
 
-        return predict_proba
+        return predict_proba, elapsed_time
 
     def extra_trees(self, fold, i, **kwargs):
         start_time = time.time()
@@ -267,9 +450,9 @@ class Classifier:
         )
 
         end_time = time.time()
-        self.time['extra trees'] = end_time - start_time
+        elapsed_time = end_time - start_time
 
-        return predict_proba
+        return predict_proba, elapsed_time
 
     def svm(self, fold, i, **kwargs):
         start_time = time.time()
@@ -301,9 +484,9 @@ class Classifier:
         ))
 
         end_time = time.time()
-        self.time['svm'] = end_time - start_time
+        elapsed_time = end_time - start_time
 
-        return predict_proba
+        return predict_proba, elapsed_time
 
     def xgb(self, fold, i, **kwargs):
         start_time = time.time()
@@ -341,9 +524,9 @@ class Classifier:
         ))
 
         end_time = time.time()
-        self.time['xgb'] = end_time - start_time
+        elapsed_time = end_time - start_time
 
-        return predict_proba
+        return predict_proba, elapsed_time
 
     def accuracy(self):
         pm = PerformanceMetrics(self)
