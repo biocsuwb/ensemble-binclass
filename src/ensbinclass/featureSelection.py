@@ -21,9 +21,7 @@ class FeatureSelection:
         self.size = size
         self.features = None
         self.methods_w_params = methods_w_params
-        self.feature_importance = pd.DataFrame(
-            columns=['fs_method', 'features', 'importance', 'rank', 'fold', 'iter']
-        )
+        self.feature_importance_list = []
         self.feature_stability = None
         self.iterate = 0
 
@@ -63,18 +61,18 @@ class FeatureSelection:
             selected_features = top_coefs.index.tolist()
             self.iterate += 1
 
-            features = {
+            features = pd.DataFrame({
                 'fs_method': 'LASSO',
                 'features': selected_features,
                 'importance': top_coefs.values,
                 'rank': list(range(1, len(selected_features) + 1)),
                 'fold': i,
                 'iter': self.iterate,
-            }
+            })
 
-            self.feature_importance.loc[len(self.feature_importance)] = features
+            self.feature_importance_list.append(features)
 
-        return self.feature_importance
+        return self.feature_importance_list
 
     def relieff(self, **kwargs):
         for i, train_idx in enumerate(self.train_index):
@@ -99,18 +97,18 @@ class FeatureSelection:
             feature_scores_df = feature_scores_df[0:self.size]
             self.iterate += 1
 
-            features = {
+            features = pd.DataFrame({
                 'fs_method': 'RELIEFF',
                 'features': feature_scores_df['Feature'].tolist(),
                 'importance': feature_scores_df['Importance'].tolist(),
                 'rank': list(range(1, feature_scores_df.shape[0] + 1)),
                 'fold': i,
                 'iter': self.iterate,
-            }
+            })
 
-            self.feature_importance.loc[len(self.feature_importance)] = features
+            self.feature_importance_list.append(features)
 
-        return self.feature_importance
+        return self.feature_importance_list
 
     def mrmr(self, **kwargs):
         for i, train_idx in enumerate(self.train_index):
@@ -135,18 +133,18 @@ class FeatureSelection:
             }).sort_values(by='Importance', ascending=False).reset_index(drop=True)
             self.iterate += 1
 
-            features = {
+            features = pd.DataFrame({
                 'fs_method': 'MRMR',
                 'features': feature_scores_df['Feature'].tolist(),
                 'importance': feature_scores_df['Importance'].tolist(),
                 'rank': list(range(1, feature_scores_df.shape[0] + 1)),
                 'fold': i,
                 'iter': self.iterate,
-            }
+            })
 
-            self.feature_importance.loc[len(self.feature_importance)] = features
+            self.feature_importance_list.append(features)
 
-        return self.feature_importance
+        return self.feature_importance_list
 
     def u_test(self, **kwargs):
         for i, train_idx in enumerate(self.train_index):
@@ -187,18 +185,18 @@ class FeatureSelection:
             ].reset_index(drop=True)
             self.iterate += 1
 
-            features = {
+            features = pd.DataFrame({
                 'fs_method': 'UTest',
                 'features': feature_p_value_filtered['Feature'].tolist(),
                 'importance': feature_p_value_filtered['Importance'].tolist(),
                 'rank': list(range(1, feature_p_value_filtered.shape[0] + 1)),
                 'fold': i,
                 'iter': self.iterate
-            }
+            })
 
-            self.feature_importance.loc[len(self.feature_importance)] = features
+            self.feature_importance_list.append(features)
 
-        return self.feature_importance
+        return self.feature_importance_list
 
     def _nogueira_stability(self, Z):
         M, d = Z.shape
@@ -210,8 +208,8 @@ class FeatureSelection:
     def compute_method_stabilities(self):
         stability = []
 
-        for method in self.feature_importance['fs_method'].unique():
-            df_method = self.feature_importance[self.feature_importance['fs_method'] == method]
+        for method in self.feature_importance_list['fs_method'].unique():
+            df_method = self.feature_importance_list[self.feature_importance_list['fs_method'] == method]
 
             for fold in df_method['fold'].unique():
                 df_fold_subset = df_method[df_method['fold'] <= fold]
@@ -283,4 +281,14 @@ class FeatureSelection:
         print(self.features[:size])
 
     def get_feature_importance(self):
-        return self.feature_importance
+        df_long = pd.concat(self.feature_importance_list, ignore_index=True)
+        df_agg = (
+            df_long.groupby(['fs_method', 'fold', 'iter'])
+            .agg({
+                'features': list,
+                'importance': list,
+                'rank': list
+            })
+            .reset_index()
+        )
+        return df_agg
